@@ -1,0 +1,32 @@
+.nav-container{
+    display: flex;
+    justify-content: center !important;
+    /*flex-wrap: inherit;*/
+    /*align-items: center;*/
+
+}
+
+.container-fluid {
+    display: flex;
+    width: 90%;
+    padding: 2%;
+    margin-right: auto;
+    margin-left: auto;
+    justify-content: space-around;
+}
+
+.flex {
+    display: flex;
+}
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo img {
+    max-width: 100px;
+    color: deeppink;
+}
