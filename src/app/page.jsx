@@ -1,9 +1,12 @@
 import Feed from "@/app/components/feed/Feed";
+import './globals.css'
 
 
 const Home = () => {
   return (
-    <Feed />
+      <div className="feed">
+          <Feed />
+      </div>
   )
 }
 

@@ -22,8 +22,8 @@ const Nav = () => {
         if (status === 'authenticated' && session.user) {
             return (
                 <div>
-                    <p>Connecté.e en tant que {session.user.username}</p>
-                    <button className="btn btn-primary" onClick={() => signOut()}>Se déconnecter</button>
+                    <p>Bonjour {session.user.username} !</p>
+                    <button className="btn" onClick={() => signOut()}>Se déconnecter</button>
                 </div>
             );
         } else return <p>{status}</p>;
@@ -46,7 +46,7 @@ const Nav = () => {
                             <FontAwesomeIcon icon={faRightFromBracket}/>
                         </button>
                     </div>) : (
-                        <div className={"flex"}>
+                        <div className="flex">
                             <p onClick={handleLoginClick}>Login</p>
                             {showLoginModal && <LoginModal show={showLoginModal} handleClose={handleCloseModal} />}
                         </div>)

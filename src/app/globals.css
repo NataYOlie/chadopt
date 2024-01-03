@@ -1,8 +1,5 @@
 :root {
-  --max-width: 1100px;
-    --foreground-rgb: white;
-    /*--background-start-rgb: white;*/
-    /*--background-end-rgb: pink;*/
+    --max-width: 1200px;
 }
 
 
@@ -14,19 +11,79 @@
 
 html,
 body {
-  max-width: 100vw;
+  /*max-width: 100vw;*/
   overflow-x: hidden;
-  font-family: "Roboto", sans-serif;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-image: url("https://cataas.com/cat?width=1000");
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: blur(3px) grayscale(50%);
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
+  color: #000000;
+}
+
+main {
+  width: 80%;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.8);
+  min-height: 100vh;
 }
 
 a {
   color: inherit;
   text-decoration: none;
 }
+
+
+.btn {
+  background-color: white;
+  color: grey;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.btn:hover {
+  color: #000000;
+  font-weight: bolder;
+  border: none;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/*.feed {*/
+/*  display: flex;*/
+/*  justify-content: center !important;*/
+/*  border: #8b2500 2px solid;*/
+/*  max-width: 90%;*/
+/*  margin-right: auto;*/
+/*  margin-left: auto;*/
+/*}*/
 
 /*@media (prefers-color-scheme: dark) {*/
 /*  html {*/

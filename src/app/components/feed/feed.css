@@ -1,0 +1,33 @@
+.card-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center !important;
+    align-items: center;
+    padding: 2%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.feed-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center;
+    padding: 2%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.chadopt-description{
+    border: black 2px solid;
+    border-radius: 30px;
+    width: 75%;
+    margin: 2rem;
+    padding: 2rem;
+}
+
+.chadopt-description p{
+    font-size: 1.5rem;
+    text-align: center;
+}

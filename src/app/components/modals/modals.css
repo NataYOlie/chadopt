@@ -1,0 +1,39 @@
+/* Ajouter ces styles dans votre fichier CSS ou directement dans votre composant */
+.modal-container {
+    position: fixed;
+    background-color: white;
+    padding: 2rem;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.modal-title {
+    font-weight: bold;
+    text-align: center !important;
+    padding-bottom: 0.5rem;
+}
+
+.modal-dialog {
+    margin: 0;
+}
+
+.modal-content {
+    border: none;
+}
+
+.form-input {
+    width: 100%;
+    height: 2.5rem;
+    margin-left: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border: grey 1px solid;
+    border-radius: 10px;
+    font-size: 1rem;
+}
