@@ -9,9 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "bcrypt": "^5.1.1",
+    "mongoose": "^8.0.3",
+    "next": "latest",
+    "next-auth": "^4.24.5",
     "react": "latest",
-    "react-dom": "latest",
-    "next": "latest"
+    "react-bootstrap": "^2.9.2",
+    "react-dom": "latest"
   },
   "devDependencies": {
     "eslint": "latest",
