@@ -43,6 +43,20 @@ const Feed = () => {
         console.log(data);
     };
 
+    const insertUser = async () => {
+        const response = await fetch("/api/auth/create", {
+            method: "POST",
+            body: JSON.stringify({
+                username: "admin",
+                password: "4dm1n",
+                role: "admin",
+                }),
+        });
+
+        const data = await response.json();
+        console.log(data);
+    };
+
     useEffect(() => {
         fetchAllCats();
     }, []);
@@ -52,6 +66,7 @@ const Feed = () => {
             <h1>Feed</h1>
             <CatCardList data={allCats}/>
             <Button onClick={insertCat}>Insert Cat</Button>
+            <Button onClick={insertUser}>Insert User</Button>
         </div>
     )
 }
