@@ -3,7 +3,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center !important;
-    align-items: center;
+    align-items: flex-start;
     padding: 2%;
     margin-right: auto;
     margin-left: auto;
@@ -30,4 +30,46 @@
 .chadopt-description p{
     font-size: 1.5rem;
     text-align: center;
+}
+.chadopt-filtres {
+    /*border: black 2px solid;*/
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex-direction: row;
+    border-radius: 30px;
+    width: 80%;
+    margin: 2rem;
+    padding: 2rem;
+}
+
+
+/* Style de base pour le select */
+select {
+    padding: 8px;
+    font-size: 16px;
+    font-family: Poppins;
+    width: 300px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    margin-right: 10px;
+    background-color: whitesmoke;
+}
+
+/* Style des options du select */
+select option {
+    font-size: 16px;
+}
+
+/* Style du label pour la checkbox */
+label {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+    font-size: 16px;
+}
+
+/* Style de la checkbox */
+input[type="checkbox"] {
+    margin-right: 5px;
 }

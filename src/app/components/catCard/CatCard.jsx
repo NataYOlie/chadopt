@@ -142,7 +142,21 @@ const CatCard = (props) => {
             <div className="description">
                 <p>{cat.description}</p>
             </div>
+            {/*Si le chat n'est pas adopté par le user */}
+            <div className="chadopt-group-btn">
+                <p className="chadopt-btn">Chadopt&apos; Moi !</p>
+                <div class="button" id="button">😸</div>
+            </div>
+
+            {/*    Si le chat est adopté par le user*/}
+            {cat.applications?.map((app) => app === user._id ? (
+                <div className="chadopt-group-btn" key={app}>
+                    <div className="button" id="button">😻</div>
+                    <p className="chadopt-btn">Merci !</p>
+                </div>
+            ) : null)}
         </div>
+
     )
 }
 
