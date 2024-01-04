@@ -2,7 +2,7 @@
 import "./catcard.css"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHeart, faHeartCirclePlus, faMars, faVenus} from "@fortawesome/free-solid-svg-icons";
-import {getSession, useSession} from "next-auth/react";
+import {getSession, useSession, update} from "next-auth/react";
 import {useEffect, useState} from "react";
 
 
@@ -19,7 +19,7 @@ const CatCard = (props) => {
     useEffect(() => {
         console.log("user", user);
         console.log("cat", cat._id);
-        setIsFavorite(user?.favorites?.some((favCat) => favCat._id === cat._id) || false);
+        setIsFavorite(user?.favorites?.some((favCat) => favCat._id === cat._id || favCat === cat._id) || false);
     }, [user, cat]);
 
     const catAge = () => {
@@ -62,31 +62,52 @@ const CatCard = (props) => {
 
     const handleToggleFavorite = async () => {
         const patchUser = { ...session.data.user };
-        // Vérifier si le chat est déjà dans les favoris
-        const isAlreadyFavorite = patchUser.favorites.some(favoriteCat => favoriteCat._id === cat._id);
 
-        // Mettez en œuvre la logique pour ajouter ou retirer le chat des favoris ici
+        // Vérifier si le chat est déjà dans les favoris
+        const isAlreadyFavorite = patchUser.favorites.some(favoriteCat => favoriteCat._id === cat._id
+            || favoriteCat === cat._id);
+
+        // Ajouter ou retirer le chat des favoris
         if (isAlreadyFavorite) {
             // Retirer le chat des favoris
-            patchUser.favorites = patchUser.favorites.filter((favoriteCat) => favoriteCat._id !== cat._id);
+            patchUser.favorites = patchUser.favorites.filter((favoriteCat) => {
+                if (typeof favoriteCat === 'string' || favoriteCat instanceof String) {
+                    // Si favoriteCat est une chaîne (cas de l'identifiant), comparer directement
+                    return favoriteCat !== cat._id;
+                } else if (favoriteCat && favoriteCat._id) {
+                    // Si favoriteCat est un objet avec la propriété _id, comparer cette propriété
+                    return favoriteCat._id !== cat._id;
+                }
+                // Si le format de favoriteCat n'est ni une chaîne ni un objet avec _id, le conserver dans le tableau
+                return true;
+            });
+            console.log(patchUser.favorites[0])
+            console.log(cat._id)
             console.log("Retirer le chat des favoris");
+
         } else {
             // Ajouter le chat aux favoris
             patchUser.favorites = [...patchUser.favorites, cat];
             console.log("Ajouter le chat aux favoris");
         }
-        // Mettre à jour l'utilisateur dans la session
-        await getSession();
-        console.log(session.data.user);
+
+        console.log(patchUser);
+        console.log("patchUser");
 
         const response = await fetch("/api/user", {
             method: "PATCH",
             body: JSON.stringify(patchUser),
         });
-        const data = response.json();
-        console.log(data);
+        const data = await response.json();
+        console.log("data")
+        console.log(data)
+
+        // Réinitialiser la session avec la version mise à jour
+        await session.update({...session.data, user: data});
+        console.log("session");
+        console.log(session);
         setIsFavorite(!isFavorite);
-        displayFavCats();
+
     };
 
     return (

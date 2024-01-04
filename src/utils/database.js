@@ -12,7 +12,7 @@ export const connectToDB = async () => {
         return;
     }
     try {
-        await mongoose.connect("mongodb+srv://Natayolie:Paozieuryt00@chadopt.kd2noz6.mongodb.net/?retryWrites=true&w=majority", {
+        await mongoose.connect(process.env.MONGODB_URI, {
             dbName: "chadopt",
             useNewUrlParser: true,
             useUnifiedTopology: true,

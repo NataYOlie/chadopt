@@ -17,7 +17,8 @@
     "next-auth": "^4.24.5",
     "react": "latest",
     "react-bootstrap": "^2.9.2",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "swr": "^2.2.4"
   },
   "devDependencies": {
     "eslint": "latest",
