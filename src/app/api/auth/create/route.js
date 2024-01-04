@@ -36,4 +36,41 @@ export const POST = async (req, res) => {
         //status 500 signifie : server error
         return new Response("Failed to create a new user : " + error, { status: 500 })
     }
+
+
+//PATCH pour modifier un user
+// export const PATCH = async (request) => {
+//     const user = await request.json();
+//     let patchUserVrai = new User(user);
+//     console.log("patchUserVrai")
+//     console.log(patchUserVrai)
+//     console.log("user")
+//     console.log(user)
+//
+//     try {
+//         await connectToDB();
+//         let patchUser = await User.findById(user._id);
+//         if(!patchUser) return new Response("User not found ", { status: 404 })
+//         console.log("patchUser")
+//         console.log(patchUser)
+//         // Extraire seulement le mot de passe
+//         const { password } = patchUser;
+//         console.log("password")
+//         console.log(password)
+//         // Mettre à jour la liste des favorites
+//         patchUser = { ...patchUser, favorites: user.favorites}
+//         const encoreUnUser = new User({patchUser});
+//         // Enregistrement des modifications dans la base de données
+//         await encoreUnUser.save();
+//
+//         console.log("API PATCH USER : " + patchUser);
+//         return new Response(JSON.stringify(patchUser), { status:200 });
+//
+//     } catch (error) {
+//         return new Response("Failed to patch user" + error, { status: 500 })
+//     }
+
+
+
+
 }

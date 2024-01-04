@@ -16,13 +16,16 @@ const handler = NextAuth({
 
             async authorize(credentials) {
                 await connectToDB();
-                const dbUser = await User.findOne({ username: credentials.username });
+                const dbUser = await User
+                    .findOne({ username: credentials.username })
+                    .populate("favorites");
 
                 if (dbUser && (await bcrypt.compare(credentials.password, dbUser.password))) {
                     const user = {
                         _id: dbUser._id.toString(),
                         username: dbUser.username,
                         role: dbUser.role,
+                        favorites: dbUser.favorites
                     };
                     return user ;
 
@@ -53,13 +56,17 @@ const handler = NextAuth({
     callbacks: {
         // Gestion des événements de session, etc.
         async session({ session, token }) {
+            console.log("callback session")
             session.user = token.user;
             return session;
         },
         async jwt({ token, user }) {
+            console.log("callback jwt")
             if (user) {
                 token.user = user;
+                console.log(token.user)
             }
+            console.log(token)
             return token;
         },
     },
