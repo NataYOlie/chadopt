@@ -60,6 +60,11 @@ const CatCard = (props) => {
         )
     }
 
+    const handleCardClick = () => {
+        props.setShowCatModal(true);
+        console.log("clic")
+    };
+
     const handleToggleFavorite = async () => {
         const patchUser = { ...session.data.user };
 
@@ -112,8 +117,9 @@ const CatCard = (props) => {
 
     return (
         <div className="card">
-            <div className="card-top">
-                <img src={`https://cataas.com/cat/says/${cat.name}?fontSize=20&fontColor=white&type=square`} alt={cat.name} >
+            <div className="card-top"
+                 onClick={() => props.setShowCatModal(cat)}>
+                <img src={cat.photo} alt={cat.name} >
                 </img>
             </div>
             <div className="container">

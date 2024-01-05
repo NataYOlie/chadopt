@@ -37,3 +37,29 @@
     border-radius: 10px;
     font-size: 1rem;
 }
+
+.modal-container .chadopt-group-btn {
+    display: block;
+    opacity: 1;
+    cursor: pointer;
+}
+
+.edit-button {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+.edit-icon {
+    font-size: 2rem;
+    padding-right: 2rem;
+    color: dimgray;
+    cursor: pointer;
+}
+
+.edit-icon:hover {
+    color: black;
+}
+
+.edit-icon:active {
+    color: #91ca21;
+}

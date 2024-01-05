@@ -7,7 +7,15 @@ export const POST = async (req, res) => {
     try {
         console.log(cat)
         await connectToDB();
-        const newCat = new Cat(cat)
+        // Générer l'URL de la photo en fonction du nom du chat
+        const photoUrl = `https://cataas.com/cat/says/${encodeURIComponent(cat.name)}?fontSize=50&fontColor=red&type=square`;
+
+        // Créer un nouvel objet Cat avec l'URL de la photo générée
+        const newCat = new Cat({
+            ...cat,
+            photo: photoUrl,
+        });
+
         await newCat.save();
 
         //status 201 signifie : created

@@ -3,7 +3,8 @@ import "./feed.css";
 import CatCard from "@/app/components/catCard/CatCard";
 import {useEffect, useState} from "react";
 import {useSession} from "next-auth/react";
-
+import LoginModal from "@/app/components/modals/LoginModal";
+import CatModal from "@/app/components/modals/CatModal";
 
 
 const CatCardList = (props) => {
@@ -15,6 +16,7 @@ const CatCardList = (props) => {
                     cat={cat}
                     user={props.user}
                     setUser={props.setUser}
+                    setShowCatModal={props.setShowCatModal}
                 />
             ))}
         </div>
@@ -31,6 +33,22 @@ const Feed = () => {
     const [selectedStatus, setSelectedStatus] = useState('All');
     const [statuses, setStatuses] = useState([]);
     const [filteredCats, setFilteredCats] = useState([]);
+    const [showCatModal, setShowCatModal] = useState(false);
+    const [modalCat, setModalCat] = useState(null)
+
+    const handleLoginClick = () => {
+        setShowCatModal(true);
+    };
+
+
+    const handleCloseModal = () => {
+        setShowCatModal(false);
+    };
+
+    function showCatModalSetter(cat){
+        setShowCatModal(true)
+        setModalCat(cat)
+    }
 
 
     const fetchAllCats = async () => {
@@ -194,10 +212,16 @@ const Feed = () => {
             {loading ? (
                 <p>Chargement en cours...</p>
             ) : (
-                <CatCardList data={filteredCats} user={session.data?.user} />
+                <CatCardList data={filteredCats} user={session.data?.user} setShowCatModal={showCatModalSetter}
+                             handleClose={handleCloseModal}/>
             )}
             {/*<Button onClick={insertCat}>Insert Cat</Button>*/}
             {/*<Button onClick={insertUser}>Insert User</Button>*/}
+
+            <div className="flex">
+                {showCatModal && <CatModal user={session.data?.user} show={showCatModalSetter} handleClose={handleCloseModal} cat={modalCat}/>}
+            </div>
+
         </div>
     )
 }
