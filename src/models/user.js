@@ -2,8 +2,8 @@ import { Schema, model, models } from "mongoose";
 
     const UserSchema = new Schema({
         username: {
-          type: String,
-          required: [true, "Le nom d'utilisateur est requis"]
+            type: String,
+            required: [true, "Le nom d'utilisateur est requis"]
         },
 
         password: {
@@ -11,19 +11,25 @@ import { Schema, model, models } from "mongoose";
             required: true,
         },
 
-        role : {
-            type:String,
+        role: {
+            type: String,
             enum: ["admin", "user"],
             default: "user",
-            required:true,
+            required: true,
         },
 
         favorites: [
-                {
+            {
                 type: Schema.Types.ObjectId,
                 ref: "Cat"
-                }
-            ]
+            }
+        ],
+
+        application: {
+            type: Schema.Types.ObjectId,
+            ref: "Application",
+        }
+
       });
 
 const User = models.User || model("User", UserSchema);

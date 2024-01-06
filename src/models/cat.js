@@ -40,21 +40,12 @@ const CatSchema = new Schema({
         default: "https://cataas.com/cat",
     },
 
-    adoptionStatus: {
-        type: String,
-        enum: ["disponible", "demande en cours", "adopté"],
-        default: "disponible", // Définition de la valeur par défaut à "available"
-        required: true,
-    },
 
     applications: [
         {
-            type: Date,
-            user: {
-                type: Schema.Types.ObjectId,
-                ref: "User",
-            }
-        }
+            type: Schema.Types.ObjectId,
+            ref: "Application"
+        },
     ],
 });
 

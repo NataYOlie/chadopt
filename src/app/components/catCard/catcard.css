@@ -81,3 +81,9 @@
 .label-wrapper select {
     /* Ajoutez d'autres styles si nécessaire */
 }
+
+.status {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 2rem;
+}

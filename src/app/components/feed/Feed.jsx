@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import {useSession} from "next-auth/react";
 import LoginModal from "@/app/components/modals/LoginModal";
 import CatModal from "@/app/components/modals/CatModal";
+import {catStatus} from "@/utils/catStatus";
 
 
 const CatCardList = (props) => {
@@ -108,7 +109,7 @@ const Feed = () => {
             if (selectedStatus !== 'All') {
                 // Filtrer par statut
                 catsToDisplay = catsToDisplay.filter(
-                    (cat) => cat.adoptionStatus === selectedStatus
+                    (cat) => catStatus(cat) === selectedStatus
                 );
             }
 
@@ -126,8 +127,14 @@ const Feed = () => {
         console.log(cities);
     };
 
-    const setFormStatuses = () => {
-        const statuses = [...new Set(allCats.map((cat) => cat.adoptionStatus))];
+    const setFormStatuses = async () => {
+        const updatedCats = allCats.map((cat) => {
+            return {
+                ...cat,
+                adoptionStatus: catStatus(cat),
+            };
+        });
+        const statuses = [...new Set(updatedCats.map((cat) => cat.adoptionStatus))];
         setStatuses(statuses);
     }
 
@@ -174,6 +181,12 @@ const Feed = () => {
                     optez pour l&apos;amour #AdoptDontShop.
                     Transformez votre feed en paradis félin avec un #ChatAdopté. 💖🐾 #ChadoptLove</p>
             </div>
+            {session?.data?.user?.role === "admin" && (
+                <div className="feed-new-cat">
+                    <button className="btn" onClick={showCatModalSetter}>🐈 Ajouter un chat 🐈</button>
+                </div>
+            )}
+
             <div className="chadopt-filtres">
                 <div className="label-wrapper">
                     <label>Villes</label>
@@ -209,6 +222,7 @@ const Feed = () => {
                     Afficher mes chats préférés
                 </label>
             </div>
+
             {loading ? (
                 <p>Chargement en cours...</p>
             ) : (
@@ -219,7 +233,8 @@ const Feed = () => {
             {/*<Button onClick={insertUser}>Insert User</Button>*/}
 
             <div className="flex">
-                {showCatModal && <CatModal user={session.data?.user} show={showCatModalSetter} handleClose={handleCloseModal} cat={modalCat}/>}
+                {showCatModal && <CatModal user={session.data?.user} show={showCatModalSetter}
+                                           handleClose={handleCloseModal} cat={modalCat}/>}
             </div>
 
         </div>

@@ -11,7 +11,7 @@ export const GET = async (request) => {
     try {
         await connectToDB();
 
-        const cats = await Cat.find({});
+        const cats = await Cat.find({}).populate("applications");
         console.log("API GET CATS : " + cats.length);
 
         return new Response(JSON.stringify(cats), { status:200 });

@@ -1,7 +1,7 @@
 import {connectToDB} from "@/utils/database";
 import User from "@/models/user";
 
-//PATCH pour modifier un user
+//PATCH pour modifier un user ! Seulement les favorites
 export const PATCH = async (request) => {
     try {
         const { _id, favorites } = await request.json();

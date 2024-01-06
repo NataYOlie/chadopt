@@ -20,9 +20,7 @@ const LoginModal = ({ show, handleClose }) => {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError(null);
-        setInfo("loading...")
-        console.log("HANDLE LOGIN")
-        console.log(credentials)
+        setInfo("chargement en cours...")
 
         const result = await signIn('credentials', {
             ...credentials,
@@ -30,7 +28,6 @@ const LoginModal = ({ show, handleClose }) => {
         });
 
         if (result.error) {
-            console.log("login result error");
             setError('Nom d\'utilisateur ou mot de passe incorrect.');
             setInfo(null)
 
