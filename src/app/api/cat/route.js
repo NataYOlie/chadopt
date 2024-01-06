@@ -1,5 +1,6 @@
 import { connectToDB } from "/src/utils/database";
 import Cat from "/src/models/cat";
+import Application from "/src/models/application";
 
 /**
  * Fetches all cats from the database
@@ -10,6 +11,7 @@ export const GET = async (request) => {
 
     try {
         await connectToDB();
+        console.log("Application model:", Application);
 
         const cats = await Cat.find({}).populate("applications");
         console.log("API GET CATS : " + cats.length);

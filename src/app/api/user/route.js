@@ -1,4 +1,5 @@
 import {connectToDB} from "@/utils/database";
+import Application from "/src/models/application";
 import User from "@/models/user";
 
 //PATCH pour modifier un user ! Seulement les favorites

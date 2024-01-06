@@ -36,6 +36,7 @@ const Feed = () => {
     const [filteredCats, setFilteredCats] = useState([]);
     const [showCatModal, setShowCatModal] = useState(false);
     const [modalCat, setModalCat] = useState(null)
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleLoginClick = () => {
         setShowCatModal(true);
@@ -138,38 +139,130 @@ const Feed = () => {
         setStatuses(statuses);
     }
 
-    //
-    //
-    // const insertCat = async () => {
-    //     const response = await fetch("/api/cat/new", {
-    //         method: "POST",
-    //         body: JSON.stringify({
-    //             name: "Félicie",
-    //             birthdate : "2022-07-01",
-    //             sex : "female",
-    //             breed :"British long hair",
-    //             city : "Carry-le-Rouet",
-    //             description: "Félicie est douce et câline, elle aime les personnes âgées et les canapés en velour côtelé",
-    //         }),
-    //     });
-    //
-    //     const data = await response.json();
-    //     console.log(data);
-    // };
-    //
-    // const insertUser = async () => {
-    //     const response = await fetch("/api/auth/create", {
-    //         method: "POST",
-    //         body: JSON.stringify({
-    //             username: "user",
-    //             password: "us3r",
-    //             role: "user",
-    //             }),
-    //     });
-    //
-    //     const data = await response.json();
-    //     console.log(data);
-    // };
+    async function handleSave(cat) {
+
+        try {
+            const response = await fetch(`/api/cat/${cat._id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cat),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to update cat: ${response.statusText}`);
+            }
+
+            const patchCat = await response.json();
+            console.log('Updated cat:', patchCat);
+            setErrorMessage("Chat mis à jour !")
+
+            //mettre un timer pour un reload 2sc pour mettre à jour les chats
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+
+
+        } catch (error) {
+            console.error('Error updating cat:', error);
+        }
+    }
+
+    async function handleCreate(cat) {
+        console.log("create cat")
+        try {
+            const response = await fetch("/api/cat/new", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cat),
+            });
+
+            const newCat = await response.json();
+            console.log('New cat:', newCat);
+            setErrorMessage("Nouveau chat ajoute")
+            //mettre un timer pour un reload 2sc pour mettre à jour les chats
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+
+        } catch (error) {
+            console.error('Error creating cat:', error);
+        }
+    }
+
+
+    function handleDelete(cat) {
+        // Etes vous sur de vouloir supprimer ce chat ?
+        const confirmDelete = window.confirm("Etes vous sur de vouloir supprimer ce chat ?");
+
+        if (confirmDelete) {
+            // DELETE du chat dans la base de données
+            fetch(`/api/cat/${cat._id}`, {
+                method: 'DELETE',
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to delete cat: ${response.statusText}`);
+                    }
+                    console.log('Cat deleted successfully');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+
+                })
+                .catch((error) => {
+                    console.error('Error deleting cat:', error);
+                });
+        }
+    }
+
+    async function handleAdopt(cat) {
+        const user = session?.data?.user;
+        console.log("HANDLE ADOPT user")
+        console.log(user)
+        if (user.application) {
+            setErrorMessage("Vous avez déjà una adoption en cours !")
+        }else {
+            try {
+                const response = await fetch(`/api/application/new`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({cat, user}),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to create application : ${response.statusText}`);
+                    setErrorMessage("Une erreur est survenue")
+                }else {
+                    setErrorMessage("Demande transmise !")
+                }
+                const data = await response.json();
+                console.log("CREATE APPLICATION data")
+                console.log(data)
+
+                // Réinitialiser la session avec la version mise à jour
+                const updatedUser = { ...user, application: data};
+                await session.update({ ...session.data, user: updatedUser });
+                console.log("session");
+                console.log(session);
+
+                //mettre un timer pour un reload 2sc pour mettre à jour les chats
+                setTimeout(window.location.reload(), 2000);
+
+            }catch (error) {
+                console.error('Error creating application:', error);
+                setErrorMessage("Une erreur est survenue")
+            }
+
+        }
+
+        //Envoyer AdoptModal pour valider le statut d'adoption
+    }
 
 
 
@@ -181,6 +274,8 @@ const Feed = () => {
                     optez pour l&apos;amour #AdoptDontShop.
                     Transformez votre feed en paradis félin avec un #ChatAdopté. 💖🐾 #ChadoptLove</p>
             </div>
+
+
             {session?.data?.user?.role === "admin" && (
                 <div className="feed-new-cat">
                     <button className="btn" onClick={showCatModalSetter}>🐈 Ajouter un chat 🐈</button>
@@ -234,7 +329,11 @@ const Feed = () => {
 
             <div className="flex">
                 {showCatModal && <CatModal user={session.data?.user} show={showCatModalSetter}
-                                           handleClose={handleCloseModal} cat={modalCat}/>}
+                                           handleSave={handleSave} handleDelete={handleDelete}
+                                           handleAdopt={handleAdopt}
+                                           handleClose={handleCloseModal} cat={modalCat}
+                                           handleCreate={handleCreate}
+                errorMessage={errorMessage} setErrorMessage={setErrorMessage}/>}
             </div>
 
         </div>

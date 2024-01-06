@@ -1,4 +1,4 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models } from "mongoose";
 
 const ApplicationSchema = new Schema({
     applicationDate: {
@@ -13,5 +13,7 @@ const ApplicationSchema = new Schema({
     }
 })
 
+delete mongoose.connection.models['Application'];
 const Application = model("Application", ApplicationSchema);
+console.log("Application model registered:", Application);
 export default Application;

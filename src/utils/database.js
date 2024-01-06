@@ -14,7 +14,6 @@ export const connectToDB = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI, {
             dbName: "chadopt",
-            useNewUrlParser: true,
             useUnifiedTopology: true,
         })
 

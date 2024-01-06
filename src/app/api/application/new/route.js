@@ -11,8 +11,7 @@ export const POST = async (req, res) => {
         console.log("APPLICATION ALREADY EXISTS")
         return new Response("User already has an application", { status: 400 });
     }else {
-        const newApplication = new Application({
-        });
+        const newApplication = new Application();
 
         try {
             console.log(cat);

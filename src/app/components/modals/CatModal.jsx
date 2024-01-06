@@ -6,7 +6,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEye, faMars, faPenToSquare, faVenus} from "@fortawesome/free-solid-svg-icons";
 import {useSession} from "next-auth/react";
 import {catStatus} from "@/utils/catStatus";
-import {useRouter} from "next/router";
 
 //Cliquer sur un chat pour obtenir l'ensemble des informations (via une modale)
 //ADMIN peut modifier les informations du chat
@@ -23,7 +22,8 @@ import {useRouter} from "next/router";
 
 
 
-const CatModal = ({ user, cat, show, handleClose }) => {
+const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, handleAdopt, handleCreate,
+                      errorMessage, setErrorMessage}) => {
     const session = useSession();
 
     // Définir des états pour les champs éditables
@@ -31,18 +31,27 @@ const CatModal = ({ user, cat, show, handleClose }) => {
     const [editedDescription, setEditedDescription] = useState(cat.description);
     const [editedCity, setEditedCity] = useState(cat.city);
     const [editedStatus, setEditedStatus] = useState(catStatus(cat));
-    const [editedSex, setEditedSex] = useState(cat.sex);
+    const [editedSex, setEditedSex] = useState(cat.sex || 'male');
     const [editedBirthdate, setEditedBirthdate] = useState(cat.birthdate);
     const [editedBreed, setEditedBreed] = useState(cat.breed);
-    const [errorMessage, setErrorMessage] = useState('');
+
 
     //Definir l'état du mode Editing
-    const [editing, setEditing] = useState(false);
+    const [editing, setEditing] = useState(!cat._id);
 
-    async function handleSave() {
-        // PATCH du chat dans la base de données
+
+    function handleSendToSave() {
+        const updatedCat = getUpdatedCat()
+        handleSave(updatedCat);
+    }
+
+    function handleSendToCreate(){
+        const updatedCat = getUpdatedCat()
+        handleCreate(updatedCat);
+    }
+
+    function getUpdatedCat (){
         const updatedCat = {
-            ...cat,
             name: editedName,
             description: editedDescription,
             city: editedCity,
@@ -51,97 +60,7 @@ const CatModal = ({ user, cat, show, handleClose }) => {
             birthdate: editedBirthdate,
             breed: editedBreed,
         };
-
-        try {
-            const response = await fetch(`/api/cat/${cat._id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedCat),
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to update cat: ${response.statusText}`);
-            }
-
-            const patchCat = await response.json();
-            console.log('Updated cat:', patchCat);
-            setErrorMessage("Chat mis à jour !")
-
-            //mettre un timer pour un reload 2sc pour mettre à jour les chats
-            setTimeout(window.location.reload(), 2000);
-
-
-        } catch (error) {
-            console.error('Error updating cat:', error);
-        }
-    }
-    function handleDelete() {
-        // Etes vous sur de vouloir supprimer ce chat ?
-        const confirmDelete = window.confirm("Etes vous sur de vouloir supprimer ce chat ?");
-
-        if (confirmDelete) {
-            // DELETE du chat dans la base de données
-            fetch(`/api/cat/${cat._id}`, {
-                method: 'DELETE',
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to delete cat: ${response.statusText}`);
-                    }
-                    console.log('Cat deleted successfully');
-                    handleClose();
-                })
-                .catch((error) => {
-                    console.error('Error deleting cat:', error);
-                });
-        }
-    }
-
-    async function handleAdopt() {
-        const user = session?.data?.user;
-        console.log("HANDLE ADOPT user")
-        console.log(user)
-        if (user.application) {
-            setErrorMessage("Vous avez déjà una adoption en cours !")
-        }else {
-            try {
-                const response = await fetch(`/api/application/new`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({cat, user}),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to create application : ${response.statusText}`);
-                    setErrorMessage("Une erreur est survenue")
-                }else {
-                    setErrorMessage("Demande transmise !")
-                }
-                const data = await response.json();
-                console.log("CREATE APPLICATION data")
-                console.log(data)
-
-                // Réinitialiser la session avec la version mise à jour
-                const updatedUser = { ...user, application: data};
-                await session.update({ ...session.data, user: updatedUser });
-                console.log("session");
-                console.log(session);
-
-                //FERMER CatModal
-                handleClose();
-
-            }catch (error) {
-                console.error('Error creating application:', error);
-                setErrorMessage("Une erreur est survenue")
-            }
-
-        }
-
-        //Envoyer AdoptModal pour valider le statut d'adoption
+        return updatedCat
     }
 
     return (
@@ -254,29 +173,48 @@ const CatModal = ({ user, cat, show, handleClose }) => {
             <Modal.Footer>
                 {/*MODE ADMIN EDITION OU MODE AFFICHAGE*/}
                 {editing ? (
-                    <>
-                        <div className="chadopt-group-btn" onClick={handleSave}>
-                            <p className="chadopt-btn">Modifie Moi !</p>
-                            <div class="button" id="button">🙀</div>
-                        </div>
+                        cat._id? (
+                                <>
+                                    <div className="chadopt-group-btn" onClick={handleSendToSave}>
+                                        <p className="chadopt-btn">Modifie Moi !</p>
+                                        <div class="button" id="button">🙀</div>
+                                    </div>
 
-                    </>
-                ) : (
-                    <div className="chadopt-group-btn" onClick={handleAdopt}>
+                                </>
+                        ) : (
+                                <>
+                                    <div className="chadopt-group-btn" onClick={handleSendToCreate}>
+                                        <p className="chadopt-btn">Crée Moi !</p>
+                                        <div class="button" id="button">😺</div>
+                                    </div>
+
+                                </>
+                            )
+
+                ) : cat._id ?(
+                    <div className="chadopt-group-btn" onClick={()=> handleAdopt(cat)}>
                         <p className="chadopt-btn">Chadopt&apos; Moi !</p>
                         <div class="button" id="button">😸</div>
                     </div>
 
+                ) : (
+                    <>
+                        <div className="chadopt-group-btn" onClick={handleSendToCreate}>
+                            <p className="chadopt-btn">Crée Moi !</p>
+                            <div class="button" id="button">😺</div>
+                        </div>
+
+                    </>
                 )}
-                <div className="error-message-div" onClick={()=>setErrorMessage("")}>
+                <div className="error-message-div" onClick={() => setErrorMessage("")}>
                 <p className="error-message"> {errorMessage} </p>
                 </div>
                 <div className="footer-group-btn">
                 <Button variant="secondary" onClick={handleClose}>
                     Fermer
                 </Button>
-                    {editing && (
-                        <Button variant="secondary" onClick={handleDelete}>
+                    {editing && cat._id && (
+                        <Button variant="secondary" onClick={()=>handleDelete(cat)}>
                             Supprimer ce chat
                         </Button>
                     )}
