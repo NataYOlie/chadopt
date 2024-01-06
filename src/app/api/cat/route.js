@@ -11,11 +11,8 @@ export const GET = async (request) => {
 
     try {
         await connectToDB();
-        console.log("Application model:", Application);
-
         const cats = await Cat.find({}).populate("applications");
         console.log("API GET CATS : " + cats.length);
-
         return new Response(JSON.stringify(cats), { status:200 });
 
     } catch (error) {

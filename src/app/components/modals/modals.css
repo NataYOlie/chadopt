@@ -98,19 +98,25 @@
     font-size: 1.5rem;
 }
 
-.modal-description {
-    border: rgba(0, 0, 0, 0.47) 1px solid;
-    margin: 1rem 2rem 1rem 1rem;
-    padding: 1rem;
-    border-radius: 5px;
-}
+
 .cat-photo-description {
     display: flex;
+    flex-wrap: wrap;
     flex-direction: row;
 }
 
-.cat-photo-description img {
+.modal-description {
+    flex: 1;
+    border: rgba(0, 0, 0, 0.47) 1px solid;
+    margin: 1rem;
     padding: 1rem;
+    border-radius: 5px;
+}
+
+.cat-photo-description img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 .error-message {

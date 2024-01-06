@@ -72,20 +72,6 @@ a {
   align-items: center;
 }
 
-/*.feed {*/
-/*  display: flex;*/
-/*  justify-content: center !important;*/
-/*  border: #8b2500 2px solid;*/
-/*  max-width: 90%;*/
-/*  margin-right: auto;*/
-/*  margin-left: auto;*/
-/*}*/
-
-/*@media (prefers-color-scheme: dark) {*/
-/*  html {*/
-/*    color-scheme: dark;*/
-/*  }*/
-/*}*/
 
 .chadopt-group-btn {
   display: none; /* Initialement caché */
@@ -101,6 +87,17 @@ a {
   transition: height 0.5s ease; /* Transition sur la hauteur sur 0.5 secondes avec une fonction d'aise */
 }
 
+#desadoptMoi {
+  display: block !important;
+  opacity: 100% !important;
+  background-color: transparent !important;
+  cursor: pointer;
+}
+
+#desadoptMoi:hover {
+  color: #e5e5e5;
+  border: none;
+}
 
 .chadopt-btn {
   display: flex;

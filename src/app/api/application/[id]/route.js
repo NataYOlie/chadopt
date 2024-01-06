@@ -12,15 +12,29 @@ export const DELETE = async (request, { params }) => {
 
         // Retirer l'application de la liste d'applications du chat
         const tempCat = await Cat.findById(cat._id);
-        const applications = tempCat.applications.filter((app) => app._id !== params.id);
-        const updatedCat = await Cat.findByIdAndUpdate(cat._id, { applications }, { new: true });
+        console.log(tempCat)
+        const applications = tempCat.applications.filter((app) => app._id.toString() !== params.id.toString());
+        console.log(applications);
+
+        const updatedCat = await Cat.findOneAndUpdate(
+            { _id: cat._id }, // Filter criteria
+            { applications }, // Update
+            { new: true }
+        );
 
         // Retirer l'application du user.application
-        const updatedUser = await User.findByIdAndUpdate(user._id, { application: null }, { new: true });
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: user._id }, // Filter criteria
+            { application: null }, // Update
+            { new: true }
+        );
 
         // Supprimer l'application de la base de données
-        await Application.findByIdAndRemove(params.id);
-
+        await Application.findOneAndDelete({ _id: params.id });
+        console.log("updatedCat")
+        console.log(updatedCat)
+        console.log("updatedUser")
+        console.log(updatedUser)
         // Return success response
         return new Response("Application deleted successfully", { status: 200 });
 

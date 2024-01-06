@@ -27,7 +27,7 @@ const handler = NextAuth({
                         username: dbUser.username,
                         role: dbUser.role,
                         favorites: dbUser.favorites,
-                        application: dBUser.application
+                        application: dbUser.application
                     };
                     return user ;
 
@@ -58,22 +58,16 @@ const handler = NextAuth({
     callbacks: {
         // Gestion des événements de session, etc.
         async session({ session, token }) {
-            console.log("callback session")
             session.user = token.user;
-            console.log(token.user)
             return session;
         },
         async jwt({ token, user ,trigger,session}) {
             if (trigger === "update" && session?.user) {
                 token.user = session.user
             }
-            console.log("callback jwt")
-            console.log(user)
             if (user) {
                 token.user = user;
-                console.log(token.user)
             }
-            console.log(token)
             return token;
         },
     },

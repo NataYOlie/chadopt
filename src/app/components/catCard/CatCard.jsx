@@ -8,10 +8,9 @@ import {getSession, useSession, update} from "next-auth/react";
 import {useEffect, useState} from "react";
 
 
-const CatCard = (props) => {
+const CatCard = ({cat, setShowCatModal, handleClose, getUserByApplicationId}) => {
     const session = useSession();
     const user = session.data?.user;
-    const cat = props.cat;
     const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
@@ -22,9 +21,6 @@ const CatCard = (props) => {
         setIsFavorite(user?.favorites?.some((favCat) => favCat._id === cat._id || favCat === cat._id) || false);
     }, [user, cat]);
 
-    useEffect(() => {
-
-    })
 
     const displayFavCats = () => {
         console.log(isFavorite);
@@ -84,7 +80,7 @@ const CatCard = (props) => {
     return (
         <div className="card">
             <div className="card-top"
-                 onClick={() => props.setShowCatModal(cat)}>
+                 onClick={() => setShowCatModal(cat)}>
                 <img src={cat.photo} alt={cat.name} >
                 </img>
             </div>
@@ -114,28 +110,23 @@ const CatCard = (props) => {
                 </p>
             </div>
             <div className="description"
-                 onClick={() => props.setShowCatModal(cat)}>
+                 onClick={() => setShowCatModal(cat)}>
                 <p>{cat.description}</p>
             </div>
 
             {/*    Si le chat est adopté par le user*/}
-            {cat.applications?.map((app) => app._id === session?.data?.user.application._id ? (
+            {cat.applications?.map((app) => app._id === session?.data?.user?.application?._id && (
                 <div className="chadopt-group-btn" key={app._id}>
                     <div className="button" id="button">😻</div>
                     <p className="chadopt-btn">Tu m&apos;as déjà chadopté !</p>
                 </div>
-            ) : (
-                <div className="chadopt-group-btn" key={app._id}>
-                    <p className="chadopt-btn">Chadopt&apos; Moi !</p>
-                    <div className="button" id="button">😸</div>
-                </div>
             ))}
-            {cat.applications?.length === 0 && !session?.data?.user.application ? (
+            {!session?.data?.user?.application?._id && (
                 <div className="chadopt-group-btn">
                     <p className="chadopt-btn">Chadopt&apos; Moi !</p>
                     <div className="button" id="button">😸</div>
                 </div>
-            ) : (<></>)}
+            )}
         </div>
     )
 }

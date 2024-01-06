@@ -8,6 +8,15 @@
     margin-right: auto;
     margin-left: auto;
 }
+.card-container adoption{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center !important;
+    align-items: flex-start;
+    margin-right: auto;
+    margin-left: auto;
+}
 
 .feed-container {
     display: flex;
@@ -41,6 +50,34 @@
     width: 80%;
     margin: 2rem;
     padding: 2rem;
+}
+
+.user-chadopt-status {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 60%;
+    background-color: rgba(146, 203, 33, 0.82);
+    border-radius: 20px;
+}
+
+.user-chadopt-status p {
+    font-size: 1rem;
+}
+
+.chadopt-status {
+    margin: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-chadopt-status h2 {
+    color: whitesmoke;
+}
+
+#status-info {
+    color: whitesmoke;
 }
 
 

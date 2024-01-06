@@ -1,45 +1,34 @@
-import { Modal, Button } from 'react-bootstrap';
-import {catAge} from "@/utils/catAge";
 import "./modals.css";
-import {useState} from "react";
+import {catAge} from "@/utils/catAge";
+import {catStatus} from "@/utils/catStatus";
+import {useEffect, useState} from "react";
+import {useSession} from "next-auth/react";
+import { Modal, Button } from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEye, faMars, faPenToSquare, faVenus} from "@fortawesome/free-solid-svg-icons";
-import {useSession} from "next-auth/react";
-import {catStatus} from "@/utils/catStatus";
-
-//Cliquer sur un chat pour obtenir l'ensemble des informations (via une modale)
-//ADMIN peut modifier les informations du chat
-/*
-    1 - Un nom
-    2 - Un date de naissance (donc un âge)
-    3 - Un race
-    4 - Un sexe
-    5 - Une ville
-    6 - Une description
-    7 - Une photo
-    8 - Un statut d'adoption
- */
 
 
 
 const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, handleAdopt, handleCreate,
-                      errorMessage, setErrorMessage}) => {
+                      getUserByApplicationId, errorMessage, setErrorMessage}) => {
     const session = useSession();
 
     // Définir des états pour les champs éditables
     const [editedName, setEditedName] = useState(cat.name);
     const [editedDescription, setEditedDescription] = useState(cat.description);
     const [editedCity, setEditedCity] = useState(cat.city);
+    const [applicationStatus, setApplicationStatus] = useState(catStatus(cat));
     const [editedStatus, setEditedStatus] = useState(catStatus(cat));
     const [editedSex, setEditedSex] = useState(cat.sex || 'male');
     const [editedBirthdate, setEditedBirthdate] = useState(cat.birthdate);
     const [editedBreed, setEditedBreed] = useState(cat.breed);
 
-
-    //Definir l'état du mode Editing
+    //Definir l'état du mode Editing (Admin peut modifier)
     const [editing, setEditing] = useState(!cat._id);
 
 
+
+//////////PRE CRUD ////////////////////////////////////////////////////////////////////////
     function handleSendToSave() {
         const updatedCat = getUpdatedCat()
         handleSave(updatedCat);
@@ -49,6 +38,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
         const updatedCat = getUpdatedCat()
         handleCreate(updatedCat);
     }
+
 
     function getUpdatedCat (){
         const updatedCat = {
@@ -63,8 +53,9 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
         return updatedCat
     }
 
+/////////////RETURN //////////////////////////////////////////////////////////////////////
     return (
-        <Modal show={show} onHide={handleClose} className="modal-container">
+        <Modal show={show} onHide={handleClose} className="modal-container" >
             <Modal.Header>
                 {editing? (
                     <>
@@ -74,7 +65,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                     </>
 
                 ) : (
-                        <Modal.Title>{cat.name}</Modal.Title>
+                    <Modal.Title>{cat.name}</Modal.Title>
                 )}
             </Modal.Header>
             <Modal.Body>
@@ -135,18 +126,41 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                             <option value="Angora">Angora</option>
                         </select>
                         <label htmlFor="status">Statut d&apos;adoption</label>
-
-                        {/*SI disponible ALORS on peut changer le statut pour une demande d'adoption par un user*/}
-                        {/*Si demande en cours ALORS on peut changer le statut de la demande*/}
-                        {/*Si adopté ALORS ne peut rien faire*/}
-
-                        <select className="form-input" id="status" value={editedStatus}
-                                onChange={(e) => setEditedStatus(e.target.value)}>
-                            <option value="disponible">A Adopter</option>
-                            <option value="demande en cours">Demandes en cours</option>
-                            <option value="adopté">Adopté</option>
-                        </select>
+                        {catStatus(cat) === "demande en cours" ? (
+                            <>
+                                <p>{cat.name} a {cat.applications.length} demande(s) en cours</p>
+                                {/* map les demandes d'adoptions du cat.applications */}
+                                {cat.applications.map((application) => (
+                                    <div key={application._id}>
+                                        <label>Date de demande d'adoption</label>
+                                        <p>{new Date(application.applicationDate).toLocaleDateString('fr-FR', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                        })}</p>
+                                        {/*<p>par {getUserByApplicationId(application._id)}</p>*/}
+                                        <p>{application.applicationStatus}</p>
+                                        {/* pour chaque proposer un select afin de changer le statut de l'application */}
+                                        <select
+                                            className="form-input"
+                                            id="status"
+                                            value={applicationStatus || application.applicationStatus}
+                                            onChange={(e) => setApplicationStatus(e.target.value)}
+                                            >
+                                            <option value="Acceptée">Acceptée</option>
+                                            <option value="En attente">En attente</option>
+                                            <option value="Rejetée">Rejetée</option>
+                                        </select>
+                                    </div>
+                                ))}
+                            </>
+                        ) : (
+                            <>
+                                {cat?.adoptionStatus}
+                            </>
+                        )}
                     </form>
+
                 ) : (
                     <div className="cat-info">
                         {cat.sex === "male" ? (
@@ -171,50 +185,36 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
 
             </Modal.Body>
             <Modal.Footer>
-                {/*MODE ADMIN EDITION OU MODE AFFICHAGE*/}
-                {editing ? (
-                        cat._id? (
-                                <>
-                                    <div className="chadopt-group-btn" onClick={handleSendToSave}>
-                                        <p className="chadopt-btn">Modifie Moi !</p>
-                                        <div class="button" id="button">🙀</div>
-                                    </div>
-
-                                </>
-                        ) : (
-                                <>
-                                    <div className="chadopt-group-btn" onClick={handleSendToCreate}>
-                                        <p className="chadopt-btn">Crée Moi !</p>
-                                        <div class="button" id="button">😺</div>
-                                    </div>
-
-                                </>
-                            )
-
-                ) : cat._id ?(
-                    <div className="chadopt-group-btn" onClick={()=> handleAdopt(cat)}>
-                        <p className="chadopt-btn">Chadopt&apos; Moi !</p>
-                        <div class="button" id="button">😸</div>
+                {/* ADMIN MODE / Editing mode : Créer ou modifier un chat */}
+                {editing && (
+                    <div className="chadopt-group-btn" onClick={cat._id ? handleSendToSave : handleSendToCreate}>
+                        <p className="chadopt-btn">{cat._id ? 'Modifie Moi !' : 'Crée Moi !'}</p>
+                        <div className="button" id="button">{cat._id ? '🙀' : '😺'}</div>
                     </div>
-
-                ) : (
-                    <>
-                        <div className="chadopt-group-btn" onClick={handleSendToCreate}>
-                            <p className="chadopt-btn">Crée Moi !</p>
-                            <div class="button" id="button">😺</div>
-                        </div>
-
-                    </>
                 )}
+
+                {/* Bouton de base */}
+                {!editing && cat._id && (
+                    <div className="chadopt-group-btn" onClick={() => handleAdopt(cat)}>
+                        <p className="chadopt-btn">Chadopt&apos; Moi !</p>
+                        <div className="button" id="button">😸</div>
+                    </div>
+                )}
+
+                {/* Error message display */}
                 <div className="error-message-div" onClick={() => setErrorMessage("")}>
-                <p className="error-message"> {errorMessage} </p>
+                    <p className="error-message">{errorMessage}</p>
                 </div>
+
+                {/* Footer buttons */}
                 <div className="footer-group-btn">
-                <Button variant="secondary" onClick={handleClose}>
-                    Fermer
-                </Button>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Fermer
+                    </Button>
+
+                    {/* Delete button for editing mode and when the cat has an ID */}
                     {editing && cat._id && (
-                        <Button variant="secondary" onClick={()=>handleDelete(cat)}>
+                        <Button variant="secondary" onClick={() => handleDelete(cat)}>
                             Supprimer ce chat
                         </Button>
                     )}

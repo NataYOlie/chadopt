@@ -3,27 +3,36 @@ import "./feed.css";
 import CatCard from "@/app/components/catCard/CatCard";
 import {useEffect, useState} from "react";
 import {useSession} from "next-auth/react";
-import LoginModal from "@/app/components/modals/LoginModal";
 import CatModal from "@/app/components/modals/CatModal";
 import {catStatus} from "@/utils/catStatus";
 
-
-const CatCardList = (props) => {
+/**
+ * Crée les cards pour chaque chat
+ */
+const CatCardList = ({data, user, setShowCatModal, handleClose, getUserByApplicationId}) => {
     return (
         <div className='card-container'>
-            {props.data.map((cat) => (
-                <CatCard
-                    key={cat._id}
-                    cat={cat}
-                    user={props.user}
-                    setUser={props.setUser}
-                    setShowCatModal={props.setShowCatModal}
-                />
-            ))}
+            {data && data.length > 0 ? (
+                data.map((cat) => (
+                    <CatCard
+                        key={cat._id}
+                        cat={cat}
+                        user={user}
+                        handleClose={handleClose}
+                        setShowCatModal={setShowCatModal}
+                        getUserByApplicationId={getUserByApplicationId}
+                    />
+                ))
+            ) : (
+                <p>No cats to display</p>
+            )}
         </div>
     );
 };
 
+/**
+ * Page principale
+ */
 const Feed = () => {
     const session = useSession();
     const [allCats, setAllCats] = useState([]);
@@ -37,28 +46,9 @@ const Feed = () => {
     const [showCatModal, setShowCatModal] = useState(false);
     const [modalCat, setModalCat] = useState(null)
     const [errorMessage, setErrorMessage] = useState('');
-
-    const handleLoginClick = () => {
-        setShowCatModal(true);
-    };
+    const [applicationCat, setApplicationCat] = useState(null);
 
 
-    const handleCloseModal = () => {
-        setShowCatModal(false);
-    };
-
-    function showCatModalSetter(cat){
-        setShowCatModal(true)
-        setModalCat(cat)
-    }
-
-
-    const fetchAllCats = async () => {
-        const response = await fetch("/api/cat");
-        const data = await response.json();
-        setAllCats(data);
-        setLoading(false);
-    };
 
     /**
      * Récupère tous les chats de la base de données
@@ -70,7 +60,7 @@ const Feed = () => {
 
 
     /**
-     * Liste les villes et les statuts pour hydrater le formulaire
+     * Liste les villes et les statuts des chats pour hydrater le formulaire
      */
     useEffect(() => {
         setFormCities();
@@ -87,12 +77,11 @@ const Feed = () => {
             if (showFavorites) {
                 // Si  session.data?.user?.favorites? est un array d'ID
                 if (session.data?.user?.favorites[0] && typeof session.data?.user?.favorites[0] === 'string') {
-                    // Filtrer par favoris (ARRAY D'ID
-                    catsToDisplay = catsToDisplay.filter((cat) =>
+                        // Filtrer par favoris (ARRAY D'ID
+                        catsToDisplay = catsToDisplay.filter((cat) =>
                         session.data?.user?.favorites?.includes(cat._id)
                     );
-
-                } else {
+            } else {
                     // Sinon, si c'est un array d'objets :
                     const favoriteIds = session.data?.user?.favorites?.map(favorite => favorite._id);
                     // Filtrer par favoris
@@ -114,18 +103,45 @@ const Feed = () => {
                 );
             }
 
+            if (applicationCat) {
+                // Si un chat est mis en avant par le module user d'adoption (le chat est en cours d'adoption par le
+                // user), il est retiré de la liste
+                catsToDisplay = catsToDisplay.filter((cat) => cat._id !== applicationCat._id);
+            }
+
             setFilteredCats(catsToDisplay);
         };
-
         filterCats();
-    }, [allCats, showFavorites, selectedCity, selectedStatus, session.data?.user]);
+    }, [allCats, showFavorites, selectedCity, selectedStatus, session.data?.user, applicationCat]);
+
+    /**
+     * Recherche le chat correspondant à la demande d'adoption du user
+     */
+    useEffect(() => {
+        getApplicationCat()
+
+    }, [session, allCats]);
+
+    const getApplicationCat = async () => {
+        const userApplicationId = session?.data?.user?.application?._id;
+
+        if (userApplicationId) {
+            const foundCat = allCats.find((cat) =>
+                cat.applications.some((app) => app._id === userApplicationId)
+            );
+            if (foundCat) {
+                await setApplicationCat(foundCat);
+                return foundCat;
+            } else setApplicationCat(null); // Reset applicationCat if no cat is found
+        }
+    };
 
 
+
+//////////// METHODES FORMULAIRE TRI /////////////////////////////////////////////////////////////////////////////////
     const setFormCities = () => {
         const cities = [...new Set(allCats.map((cat) => cat.city))];
         setCities(cities);
-        console.log("cities");
-        console.log(cities);
     };
 
     const setFormStatuses = async () => {
@@ -139,8 +155,26 @@ const Feed = () => {
         setStatuses(statuses);
     }
 
-    async function handleSave(cat) {
 
+////////// METHODES MODAL //////////////////////////////////////////////////////////////////////
+    const handleCloseModal = () => {
+        setModalCat(null)
+        setShowCatModal(false);
+    };
+
+    function showCatModalSetter(cat){
+        setModalCat(cat)
+        setShowCatModal(true)
+    }
+
+/////////////////////////CRUD/////////////////////////////////////////////////////////////////////
+    const fetchAllCats = async () => {
+        const response = await fetch("/api/cat");
+        const data = await response.json();
+        setAllCats(data);
+        setLoading(false);
+    };
+    async function handleSave(cat) {
         try {
             const response = await fetch(`/api/cat/${cat._id}`, {
                 method: 'PATCH',
@@ -162,8 +196,6 @@ const Feed = () => {
             setTimeout(() => {
                 window.location.reload();
             }, 2000);
-
-
         } catch (error) {
             console.error('Error updating cat:', error);
         }
@@ -258,14 +290,67 @@ const Feed = () => {
                 console.error('Error creating application:', error);
                 setErrorMessage("Une erreur est survenue")
             }
-
         }
+    }
 
-        //Envoyer AdoptModal pour valider le statut d'adoption
+    async function handleDeleteApplication(application) {
+        // Etes vous sur de vouloir supprimer cette adoption ?
+        const confirmDelete = window.confirm("Etes vous sur de vouloir supprimer cette adoption ?");
+
+        const cat = applicationCat;
+        const user = session?.data?.user;
+
+        if (confirmDelete) {
+            try {
+                const response = await fetch(`/api/application/${application._id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({cat, user}),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to delete application : ${response.statusText}`);
+                    setErrorMessage("Une erreur est survenue - la demande n'a pas pu être supprimée")
+                }else {
+                    setErrorMessage("Adoption annulée")
+                    // Réinitialiser la session avec la version mise à jour
+                    await session.update({
+                        ...session.data,
+                        user: {
+                            ...session.data.user,
+                            application: null,
+                        }
+                    });
+                    setApplicationCat(null)
+
+                    //mettre un timer pour un reload 2sc pour mettre à jour les chats
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                }
+
+            }catch (error) {
+                console.error('Error creating application:', error);
+                setErrorMessage("Une erreur est survenue")
+            }
+        }
+    }
+
+    async function getUserByApplicationId(applicationid){
+        const response = await fetch(`/api/user/${applicationid}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const user = await response.json();
+        return user
     }
 
 
-
+/////////////////////////////////////RETURN/////////////////////////////////////////////////////////////////////
     return (
         <div className="feed-container">
             <div className="chadopt-description">
@@ -276,37 +361,37 @@ const Feed = () => {
             </div>
 
 
+
+
             {session?.data?.user?.role === "admin" && (
                 <div className="feed-new-cat">
                     <button className="btn" onClick={showCatModalSetter}>🐈 Ajouter un chat 🐈</button>
                 </div>
             )}
-
             <div className="chadopt-filtres">
                 <div className="label-wrapper">
                     <label>Villes</label>
-                        <select
-                            value={selectedCity}
-                            onChange={(e) => setSelectedCity(e.target.value)}
-                        >
-                            <option value="All">Tout voir</option>
-                            {cities.map((city) => (
-                                <option key={city} value={city}>{city}</option>
-                            ))}
-                        </select>
+                    <select
+                        value={selectedCity}
+                        onChange={(e) => setSelectedCity(e.target.value)}
+                    >
+                        <option value="All">Tout voir</option>
+                        {cities.map((city) => (
+                            <option key={city} value={city}>{city}</option>
+                        ))}
+                    </select>
                 </div>
-
                 <div className="label-wrapper">
                     <label>Statut</label>
-                        <select
-                            value={selectedStatus}
-                            onChange={(e) => setSelectedStatus(e.target.value)}
-                        >
-                            <option value="All">Tout voir</option>
-                            {statuses.map((status) => (
+                    <select
+                        value={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                    >
+                        <option value="All">Tout voir</option>
+                        {statuses.map((status) => (
                             <option key={status} value={status}>{status}</option>
                         ))}
-                        </select>
+                    </select>
                 </div>
                 <label>
                     <input
@@ -318,24 +403,81 @@ const Feed = () => {
                 </label>
             </div>
 
+
+
+
+
+
+
+
+
+            <div className="user-chadopt-status">
+                {/*AFFICHER LE CHAT QUI EST EN DEMANDE PAR LE USER*/}
+                {session?.data?.user?.application && (
+                    <>
+                        <div className="chadopt-status">
+                            <div className="chadopt-status">
+                                <h1>😻</h1>
+                                <h2>Vous avez une adoption en cours</h2>
+                                <p>Statut : {session?.data?.user?.application?.applicationStatus}</p>
+                            </div>
+
+                            <div className="chadopt-status" id="status-info">
+                                <p>Vous devez attendre d&apos;avoir adopté <b>{applicationCat?.name}</b> avant de pouvoir adopter un
+                                    nouveau compagnon</p>
+                            </div>
+
+                            <div className="chadopt-group-btn" id="desadoptMoi" onClick={()=>handleDeleteApplication(session?.data?.user?.application)}>
+                                <div className="button" id="desadoptMoi-button">😿</div>
+                                <p className="button">Annuler ma demande d&apos;adoption</p>
+                            </div>
+                        </div>
+
+                        {applicationCat && (
+                            <div className='card-container-adoption'>
+                                <CatCard
+                                    cat={applicationCat}
+                                    key={applicationCat._id}
+                                    user={session?.data?.user}
+                                    setShowCatModal={showCatModalSetter}
+                                    handleClose={handleCloseModal}
+                                    getUserByApplicationId={getUserByApplicationId}
+                                />
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+
+
+
+
+
             {loading ? (
                 <p>Chargement en cours...</p>
             ) : (
-                <CatCardList data={filteredCats} user={session.data?.user} setShowCatModal={showCatModalSetter}
-                             handleClose={handleCloseModal}/>
+                <CatCardList data={filteredCats} setShowCatModal={showCatModalSetter}
+                             handleClose={handleCloseModal} getUserByApplicationId={getUserByApplicationId}/>
             )}
-            {/*<Button onClick={insertCat}>Insert Cat</Button>*/}
-            {/*<Button onClick={insertUser}>Insert User</Button>*/}
+
+
+
+
+
 
             <div className="flex">
-                {showCatModal && <CatModal user={session.data?.user} show={showCatModalSetter}
-                                           handleSave={handleSave} handleDelete={handleDelete}
+                {showCatModal && <CatModal user={session.data?.user}
+                                           show={showCatModalSetter}
+                                           handleSave={handleSave}
+                                           handleDelete={handleDelete}
                                            handleAdopt={handleAdopt}
-                                           handleClose={handleCloseModal} cat={modalCat}
+                                           handleClose={handleCloseModal}
+                                           getUserByApplicationId={getUserByApplicationId}
+                                           cat={modalCat}
                                            handleCreate={handleCreate}
-                errorMessage={errorMessage} setErrorMessage={setErrorMessage}/>}
+                                           errorMessage={errorMessage}
+                                           setErrorMessage={setErrorMessage}/>}
             </div>
-
         </div>
     )
 }
