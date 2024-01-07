@@ -350,6 +350,35 @@ const Feed = () => {
         return user
     }
 
+    async function handlePatchApplication(applicationid, status) {
+        console.log("PATCH APPLICATION")
+
+        console.log(applicationid) //OK renvoie 6599ba1ec8b4c608761fa20e
+        console.log(status) //OK renvoie Acceptée
+        
+        try {
+            const response = await fetch(`/api/application/${applicationid}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(status),
+            });
+    
+            const data = await response.json();
+            console.log("PATCH APPLICATION data");
+            console.log(data);
+    
+            setErrorMessage(`Demande enregistrée comme ${status} !`);
+            return data;
+
+        } catch (error) {
+            console.error("Error patching application:", error);
+            // Handle the error as needed
+            setErrorMessage("Failed to patch application. Please try again.");
+        }
+    }
+
 
 /////////////////////////////////////RETURN/////////////////////////////////////////////////////////////////////
     return (
@@ -476,6 +505,7 @@ const Feed = () => {
                                            getUserByApplicationId={getUserByApplicationId}
                                            cat={modalCat}
                                            handleCreate={handleCreate}
+                                           handlePatchApplication={handlePatchApplication}
                                            errorMessage={errorMessage}
                                            setErrorMessage={setErrorMessage}/>}
             </div>

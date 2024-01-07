@@ -27,8 +27,6 @@ export const GET = async (request, { params }) => {
 //PATCH (update)
 export const PATCH = async (request, { params }) => {
     const cat = await request.json();
-    console.log(cat)
-    console.log("Cat")
 
     try {
         connectToDB();
@@ -37,8 +35,7 @@ export const PATCH = async (request, { params }) => {
 
         //assigner les attribut de cat a existing cat
         const patchCat = new Cat(cat);
-        console.log("patchCat")
-        console.log(patchCat)
+
 
         await patchCat.save();
 

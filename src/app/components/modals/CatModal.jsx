@@ -9,7 +9,7 @@ import {faEye, faMars, faPenToSquare, faVenus} from "@fortawesome/free-solid-svg
 
 
 
-const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, handleAdopt, handleCreate,
+const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, handleAdopt, handleCreate, handlePatchApplication,
                       getUserByApplicationId, errorMessage, setErrorMessage}) => {
     const session = useSession();
 
@@ -22,6 +22,8 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
     const [editedSex, setEditedSex] = useState(cat.sex || 'male');
     const [editedBirthdate, setEditedBirthdate] = useState(cat.birthdate);
     const [editedBreed, setEditedBreed] = useState(cat.breed);
+
+    const [adoptUserList, setAdoptedUserList] = useState([]);
 
     //Definir l'état du mode Editing (Admin peut modifier)
     const [editing, setEditing] = useState(!cat._id);
@@ -38,6 +40,12 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
         handleCreate(updatedCat);
     }
 
+    
+    function handleSendToPatchApp(applicationid, status){
+        const updatedStatus = status
+        handlePatchApplication(applicationid, updatedStatus);
+    }
+
 
     function getUpdatedCat (){
         const updatedCat = {
@@ -52,13 +60,16 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
         return updatedCat
     }
 
-    async function handleAdoptUser(applicationId) {
-        const adoptUser = getUserByApplicationId(applicationId);
-        return (
-            <p>{adoptUser.username}</p>
-        )
+    function handleAdoptUser(applicationId) {
+        getUserByApplicationId(applicationId)
+            .then((user) => {
+                console.log(user.username);
+                adoptUserList.push(user);
+            })
+            .catch((error) => {
+                console.error("Error fetching user:", error);
+            });
     }
-
 /////////////RETURN //////////////////////////////////////////////////////////////////////
     return (
         <Modal show={show} onHide={handleClose} className="modal-container" >
@@ -136,7 +147,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                             <>
                                 <p>{cat.name} a {cat.applications.length} demande(s) en cours</p>
                                 {/* map les demandes d'adoptions du cat.applications */}
-                                {cat.applications.map((application) => (
+                                {cat.applications.map((application, index) => (
                                     <div key={application._id}>
                                         <label>Date de demande d'adoption</label>
                                         <p>{new Date(application.applicationDate).toLocaleDateString('fr-FR', {
@@ -144,11 +155,46 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                                             month: 'long',
                                             day: 'numeric',
                                         })}</p>
-                                        <button className="btn" >
-                                            Voir User</button>
+                                        <div>
+                                            <div>
+                                            {/* Call handleAdoptUser to fetch and store user data */}
+                                                {handleAdoptUser(application._id)}
+                                            </div>
+                                            {/* Display the user data for each application */}
+                                            {adoptUserList?.length > 0 && (
+                                                <p key={index}> par {adoptUserList[index]?.username}</p>
+                                            )}
+                                                
+                                        </div>
                                         <p>{application._id}</p>
                                         <p>{application.applicationStatus}</p>
                                         {/* pour chaque proposer un select afin de changer le statut de l'application */}
+                                        {application.applicationStatus === "Acceptée" && (
+    <>
+        <button type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
+            Rejeter la demande
+        </button>
+        <button type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>Mettre en attente</button>
+    </>
+)}
+{application.applicationStatus === "Rejetée" && (
+    <>
+        <button type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>
+            Accepter la demande
+        </button>
+        <button type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>
+            Mettre en attente
+        </button>
+    </>
+)}
+{application.applicationStatus === "En attente" && (
+    <>
+        <button type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>Accepter la demande</button>
+        <button type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
+            Rejeter la demande
+        </button>
+    </>
+)}
                                         <select
                                             className="form-input"
                                             id="status"

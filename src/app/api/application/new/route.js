@@ -8,7 +8,6 @@ export const POST = async (req, res) => {
     const dbUSer = User.findById(user._id);
 
     if (dbUSer.application){
-        console.log("APPLICATION ALREADY EXISTS")
         return new Response("User already has an application", { status: 400 });
     }else {
         const newApplication = new Application();

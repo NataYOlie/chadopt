@@ -2,7 +2,37 @@ import { connectToDB } from "/src/utils/database";
 import Application from "/src/models/application";
 import User from "/src/models/user";
 import Cat from "/src/models/cat";
-import mongoose from "mongoose";
+
+/**
+ * Mise à jour du statut d'une demande d'adoption
+ */
+//PATCH METHOD (UPDATE) du statut de l'application
+export const PATCH = async (request, { params }) => {
+    console.log("PATCH APPLICATION")
+    console.log(params.id)
+    const status = await request.json();
+
+    console.log(status)
+    
+
+    try {
+        await connectToDB();
+        const application = await Application.findById(params.id);
+        if (!application) return new Response("Application not found", { status: 404 });
+
+        // Mise à jour l'application existante
+        application.applicationStatus = status;
+
+        // Enregistrement de la mise à jour dans la base de données
+        await application.save();
+
+        return new Response(JSON.stringify(application), { status: 200 });
+
+    } catch (error) {
+        return new Response("Failed to update the application " + error, { status: 500 });
+    }
+};
+
 
 // DELETE METHOD
 export const DELETE = async (request, { params }) => {
@@ -13,9 +43,7 @@ export const DELETE = async (request, { params }) => {
 
         // Retirer l'application de la liste d'applications du chat
         const tempCat = await Cat.findById(cat._id);
-        console.log(tempCat)
         const applications = tempCat.applications.filter((app) => app._id.toString() !== params.id.toString());
-        console.log(applications);
 
         const updatedCat = await Cat.findOneAndUpdate(
             { _id: cat._id }, // Filter criteria
@@ -32,10 +60,7 @@ export const DELETE = async (request, { params }) => {
 
         // Supprimer l'application de la base de données
         await Application.findOneAndDelete({ _id: params.id });
-        console.log("updatedCat")
-        console.log(updatedCat)
-        console.log("updatedUser")
-        console.log(updatedUser)
+
         // Return success response
         return new Response("Application deleted successfully", { status: 200 });
 
@@ -44,45 +69,30 @@ export const DELETE = async (request, { params }) => {
     }
 };
 
-//PATCH METHOD (UPDATE) du statut de l'application
-export const PATCH = async (request, { params }) => {
-    const status = await request.json();
-    //"Acceptée", "En attente", "Rejetée"
-
-    try {
-        await connectToDB();
-        const application = await Application.findById(params.id);
-        const patchApplication = new Application({
-            ...application,
-            applicationStatus: status
-        })
-        await patchApplication.save();
-        return new Response(JSON.stringify(patchApplication), { status: 200 });
-
-    }catch (error) {
-        return new Response("Failed to update the application" + error, { status: 500 });
-    }
-}
+/**
+ * Méthode pour récupérer le user lié à un numéro de demande d'adoption
+ */
 //GET pour trouver le user selon une application
 export const GET = async (request, { params }) => {
     try {
         await connectToDB();
         console.log(params.id)
-        // Execute the query to get the application document
+        //On récupère l'application
         const application = await Application.findById(params.id);
 
         if (!application) {
             return new Response("Application not found", { status: 404 });
         }
 
-        // Now, you can use the application's _id to find the user
+        //et a partir de l'Id (ObjectId) on récupère le user 
         const user = await User.findOne({ application: application._id });
 
-        if (!user) {
-            return new Response("User not found", { status: 404 });
-        }
+            if (!user) {
+                return new Response("User not found", { status: 404 });
+            }
 
         return new Response(JSON.stringify(user), { status: 200 });
+
     } catch (error) {
         return new Response("Failed to get user for this application: " + error, { status: 500 });
     }
