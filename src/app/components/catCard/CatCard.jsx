@@ -23,7 +23,7 @@ const CatCard = ({cat, setShowCatModal, handleClose, getUserByApplicationId}) =>
 
 
     const displayFavCats = () => {
-        console.log(isFavorite);
+
         return (
             <div className="card-favorite">
                 <FontAwesomeIcon

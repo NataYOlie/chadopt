@@ -339,13 +339,14 @@ const Feed = () => {
     }
 
     async function getUserByApplicationId(applicationid){
-        const response = await fetch(`/api/user/${applicationid}`, {
+        const response = await fetch(`/api/application/${applicationid}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
         });
         const user = await response.json();
+
         return user
     }
 

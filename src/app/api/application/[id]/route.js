@@ -2,6 +2,7 @@ import { connectToDB } from "/src/utils/database";
 import Application from "/src/models/application";
 import User from "/src/models/user";
 import Cat from "/src/models/cat";
+import mongoose from "mongoose";
 
 // DELETE METHOD
 export const DELETE = async (request, { params }) => {
@@ -62,3 +63,27 @@ export const PATCH = async (request, { params }) => {
         return new Response("Failed to update the application" + error, { status: 500 });
     }
 }
+//GET pour trouver le user selon une application
+export const GET = async (request, { params }) => {
+    try {
+        await connectToDB();
+        console.log(params.id)
+        // Execute the query to get the application document
+        const application = await Application.findById(params.id);
+
+        if (!application) {
+            return new Response("Application not found", { status: 404 });
+        }
+
+        // Now, you can use the application's _id to find the user
+        const user = await User.findOne({ application: application._id });
+
+        if (!user) {
+            return new Response("User not found", { status: 404 });
+        }
+
+        return new Response(JSON.stringify(user), { status: 200 });
+    } catch (error) {
+        return new Response("Failed to get user for this application: " + error, { status: 500 });
+    }
+};

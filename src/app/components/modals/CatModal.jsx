@@ -27,7 +27,6 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
     const [editing, setEditing] = useState(!cat._id);
 
 
-
 //////////PRE CRUD ////////////////////////////////////////////////////////////////////////
     function handleSendToSave() {
         const updatedCat = getUpdatedCat()
@@ -51,6 +50,13 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
             breed: editedBreed,
         };
         return updatedCat
+    }
+
+    async function handleAdoptUser(applicationId) {
+        const adoptUser = getUserByApplicationId(applicationId);
+        return (
+            <p>{adoptUser.username}</p>
+        )
     }
 
 /////////////RETURN //////////////////////////////////////////////////////////////////////
@@ -138,7 +144,9 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                                             month: 'long',
                                             day: 'numeric',
                                         })}</p>
-                                        {/*<p>par {getUserByApplicationId(application._id)}</p>*/}
+                                        <button className="btn" >
+                                            Voir User</button>
+                                        <p>{application._id}</p>
                                         <p>{application.applicationStatus}</p>
                                         {/* pour chaque proposer un select afin de changer le statut de l'application */}
                                         <select
@@ -146,7 +154,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                                             id="status"
                                             value={applicationStatus || application.applicationStatus}
                                             onChange={(e) => setApplicationStatus(e.target.value)}
-                                            >
+                                        >
                                             <option value="Acceptée">Acceptée</option>
                                             <option value="En attente">En attente</option>
                                             <option value="Rejetée">Rejetée</option>
