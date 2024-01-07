@@ -19,7 +19,7 @@ const handler = NextAuth({
                 const dbUser = await User
                     .findOne({ username: credentials.username })
                     .populate("favorites")
-                    .populate("application");
+                    .populate("applications");
 
                 if (dbUser && (await bcrypt.compare(credentials.password, dbUser.password))) {
                     const user = {
@@ -27,7 +27,8 @@ const handler = NextAuth({
                         username: dbUser.username,
                         role: dbUser.role,
                         favorites: dbUser.favorites,
-                        application: dbUser.application
+                        // application: dbUser.application,
+                        applications: dbUser.applications
                     };
                     return user ;
 

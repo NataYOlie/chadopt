@@ -78,57 +78,56 @@ const CatCard = ({cat, setShowCatModal, handleClose, getUserByApplicationId}) =>
     };
 
     return (
-        <div className="card">
-            <div className="card-top"
-                 onClick={() => setShowCatModal(cat)}>
-                <img src={cat.photo} alt={cat.name} >
-                </img>
-            </div>
-            <div className="container">
-                <div className="card-catName">
-                    {user && (<div>
-                        {displayFavCats()}
-                    </div>)}
-                    <h3 className="card-title">{cat.name}</h3>
-                </div>
-                {cat.sex === "male" ? (
-                    <FontAwesomeIcon icon={faMars}/>
-                ) : (  <FontAwesomeIcon icon={faVenus}/>)}
-            </div>
-            <div className="container">
-                <p>
-                    {cat.city}
-                </p>
-                <p>{catAge(cat)}</p>
-            </div>
-            <div className="status">
-                <p>
-                    {user?.role === "admin" && (
-                        <p>{catStatus(cat)}</p>
-                    )
-                    }
-                </p>
-            </div>
-            <div className="description"
-                 onClick={() => setShowCatModal(cat)}>
-                <p>{cat.description}</p>
-            </div>
+      <div className="card">
+        <div className="card-top" onClick={() => setShowCatModal(cat)}>
+          <img src={cat.photo} alt={cat.name}></img>
+        </div>
+        <div className="container">
+          <div className="card-catName">
+            {user && <div>{displayFavCats()}</div>}
+            <h3 className="card-title">{cat.name}</h3>
+          </div>
+          {cat.sex === "male" ? (
+            <FontAwesomeIcon icon={faMars} />
+          ) : (
+            <FontAwesomeIcon icon={faVenus} />
+          )}
+        </div>
+        <div className="container">
+          <p>{cat.city}</p>
+          <p>{catAge(cat)}</p>
+        </div>
+        <div className="status">
+          <p>{user?.role === "admin" && <p>{catStatus(cat)}</p>}</p>
+        </div>
+        <div className="description" onClick={() => setShowCatModal(cat)}>
+          <p>{cat.description}</p>
+        </div>
 
-            {/*    Si le chat est adopté par le user*/}
-            {cat.applications?.map((app) => app._id === session?.data?.user?.application?._id && (
-                <div className="chadopt-group-btn" key={app._id}>
-                    <div className="button" id="button">😻</div>
+        {/*    Si le chat est adopté par le user lebouton deviens tu m'as chadopté*/}
+        <div className="chadopt-group-btn">
+            {cat.applications?.some((catApp) =>
+                session?.data?.user?.applications?.some(
+                (userApp) => catApp._id === userApp._id
+                )
+            ) ? (
+                <div className="chadopt-group-btn" key={cat._id}>
+                <div className="button" id="button">
+                    😻
+                </div>
                     <p className="chadopt-btn">Tu m&apos;as déjà chadopté !</p>
                 </div>
-            ))}
-            {!session?.data?.user?.application?._id && (
+            ) : (
                 <div className="chadopt-group-btn">
-                    <p className="chadopt-btn">Chadopt&apos; Moi !</p>
-                    <div className="button" id="button">😸</div>
+                    <p className="chadopt-btn" onClick={()=>setShowCatModal(cat)}>Chadopt&apos; Moi !</p>
+                <div className="button" id="button">
+                    😸
+                </div>
                 </div>
             )}
-        </div>
-    )
+            </div>
+      </div>
+    );
 }
 
 export default CatCard

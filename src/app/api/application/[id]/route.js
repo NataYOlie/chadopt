@@ -51,10 +51,13 @@ export const DELETE = async (request, { params }) => {
             { new: true }
         );
 
-        // Retirer l'application du user.application
+        // Retirer l'application de la liste d'applications du user
+        const tempUser = await User.findById(user._id);
+        const userApplications = tempUser.applications.filter((app) => app._id.toString() !== params.id.toString());
+        
         const updatedUser = await User.findOneAndUpdate(
             { _id: user._id }, // Filter criteria
-            { application: null }, // Update
+            { applications: userApplications }, // Update
             { new: true }
         );
 

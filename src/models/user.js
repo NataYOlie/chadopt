@@ -25,10 +25,12 @@ import { Schema, model, models } from "mongoose";
             }
         ],
 
-        application: {
-            type: Schema.Types.ObjectId,
-            ref: "Application",
-        }
+        applications: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Application"
+            },
+        ],
 
       });
 

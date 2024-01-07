@@ -46,7 +46,7 @@ const Feed = () => {
     const [showCatModal, setShowCatModal] = useState(false);
     const [modalCat, setModalCat] = useState(null)
     const [errorMessage, setErrorMessage] = useState('');
-    const [applicationCat, setApplicationCat] = useState(null);
+    const [applicationCatList, setApplicationCatList] = useState([]); //Pour les demandes d'adoption en cours du user
 
 
 
@@ -103,37 +103,58 @@ const Feed = () => {
                 );
             }
 
-            if (applicationCat) {
-                // Si un chat est mis en avant par le module user d'adoption (le chat est en cours d'adoption par le
-                // user), il est retiré de la liste
-                catsToDisplay = catsToDisplay.filter((cat) => cat._id !== applicationCat._id);
-            }
+             // Si un chat est mis en avant par le module user d'adoption (le chat est en cours d'adoption par le
+             // user), il est retiré de la liste
+            if (applicationCatList && applicationCatList.length > 0) {
+                applicationCatList.forEach((catApp) => {
 
+                    catsToDisplay = catsToDisplay.filter((cat) => cat._id !== catApp._id);
+                });
+            }
             setFilteredCats(catsToDisplay);
         };
         filterCats();
-    }, [allCats, showFavorites, selectedCity, selectedStatus, session.data?.user, applicationCat]);
+    }, [allCats, showFavorites, selectedCity, selectedStatus, session.data?.user, applicationCatList]);
 
     /**
      * Recherche le chat correspondant à la demande d'adoption du user
      */
     useEffect(() => {
-        getApplicationCat()
+        getApplicationCatList() 
 
     }, [session, allCats]);
 
-    const getApplicationCat = async () => {
-        const userApplicationId = session?.data?.user?.application?._id;
+    const getApplicationCatList = async () => {
 
-        if (userApplicationId) {
-            const foundCat = allCats.find((cat) =>
-                cat.applications.some((app) => app._id === userApplicationId)
-            );
-            if (foundCat) {
-                await setApplicationCat(foundCat);
-                return foundCat;
-            } else setApplicationCat(null); // Reset applicationCat if no cat is found
+        const userApplications = session?.data?.user?.applications;
+
+        if (userApplications && userApplications.length > 0) {
+        
+        // Récupérer les chats correspondant aux demandes d'adoption du user
+            const catsWithApplications = allCats.filter((cat) =>
+            cat.applications.some((app) => {
+                const matchingUserApp = userApplications.find((userApp) => userApp._id === app._id);
+                return matchingUserApp != null;
+            })
+        );
+            
+        // Ajouter le statut au chat
+        catsWithApplications.forEach((cat) => {
+            cat.adoptionStatus = catStatus(cat);
+        });
+
+        console.log("catsWithApplications") 
+        console.log(catsWithApplications) 
+
+        if (catsWithApplications.length > 0) {
+            setApplicationCatList(catsWithApplications);
+            return catsWithApplications;
+        } else {
+            setApplicationCatList([]); // Reset applicationCatList si pas de chats
         }
+    } else {
+        setApplicationCatList([]); // Reset applicationCatList si pas de chats
+    }
     };
 
 
@@ -158,6 +179,7 @@ const Feed = () => {
 
 ////////// METHODES MODAL //////////////////////////////////////////////////////////////////////
     const handleCloseModal = () => {
+        console.log("close modal")
         setModalCat(null)
         setShowCatModal(false);
     };
@@ -174,6 +196,10 @@ const Feed = () => {
         setAllCats(data);
         setLoading(false);
     };
+
+    /**
+     * Modifier un chat 
+     */
     async function handleSave(cat) {
         try {
             const response = await fetch(`/api/cat/${cat._id}`, {
@@ -201,6 +227,9 @@ const Feed = () => {
         }
     }
 
+    /**
+     * Créer un chat
+     */
     async function handleCreate(cat) {
         console.log("create cat")
         try {
@@ -225,7 +254,9 @@ const Feed = () => {
         }
     }
 
-
+    /**
+     * Supprimer un chat
+     */
     function handleDelete(cat) {
         // Etes vous sur de vouloir supprimer ce chat ?
         const confirmDelete = window.confirm("Etes vous sur de vouloir supprimer ce chat ?");
@@ -251,13 +282,14 @@ const Feed = () => {
         }
     }
 
+     /**
+     * Créer une demande d'adoption
+     */
     async function handleAdopt(cat) {
         const user = session?.data?.user;
         console.log("HANDLE ADOPT user")
         console.log(user)
-        if (user.application) {
-            setErrorMessage("Vous avez déjà una adoption en cours !")
-        }else {
+       
             try {
                 const response = await fetch(`/api/application/new`, {
                     method: 'POST',
@@ -274,14 +306,11 @@ const Feed = () => {
                     setErrorMessage("Demande transmise !")
                 }
                 const data = await response.json();
-                console.log("CREATE APPLICATION data")
-                console.log(data)
+                const updatedApplications = [...user.applications, data];
 
                 // Réinitialiser la session avec la version mise à jour
-                const updatedUser = { ...user, application: data};
+                const updatedUser = { ...user, applications: updatedApplications};
                 await session.update({ ...session.data, user: updatedUser });
-                console.log("session");
-                console.log(session);
 
                 //mettre un timer pour un reload 2sc pour mettre à jour les chats
                 setTimeout(window.location.reload(), 2000);
@@ -290,72 +319,18 @@ const Feed = () => {
                 console.error('Error creating application:', error);
                 setErrorMessage("Une erreur est survenue")
             }
-        }
+        
     }
 
-    async function handleDeleteApplication(application) {
-        // Etes vous sur de vouloir supprimer cette adoption ?
-        const confirmDelete = window.confirm("Etes vous sur de vouloir supprimer cette adoption ?");
-
-        const cat = applicationCat;
-        const user = session?.data?.user;
-
-        if (confirmDelete) {
-            try {
-                const response = await fetch(`/api/application/${application._id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({cat, user}),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to delete application : ${response.statusText}`);
-                    setErrorMessage("Une erreur est survenue - la demande n'a pas pu être supprimée")
-                }else {
-                    setErrorMessage("Adoption annulée")
-                    // Réinitialiser la session avec la version mise à jour
-                    await session.update({
-                        ...session.data,
-                        user: {
-                            ...session.data.user,
-                            application: null,
-                        }
-                    });
-                    setApplicationCat(null)
-
-                    //mettre un timer pour un reload 2sc pour mettre à jour les chats
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                }
-
-            }catch (error) {
-                console.error('Error creating application:', error);
-                setErrorMessage("Une erreur est survenue")
-            }
-        }
-    }
-
-    async function getUserByApplicationId(applicationid){
-        const response = await fetch(`/api/application/${applicationid}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        const user = await response.json();
-
-        return user
-    }
-
-    async function handlePatchApplication(applicationid, status) {
+         
+     /**
+     * Modifier une demande d'adoption
+     */
+     async function handlePatchApplication(applicationid, status) {
         console.log("PATCH APPLICATION")
 
-        console.log(applicationid) //OK renvoie 6599ba1ec8b4c608761fa20e
-        console.log(status) //OK renvoie Acceptée
-        
+        console.log(applicationid)
+        console.log(status) 
         try {
             const response = await fetch(`/api/application/${applicationid}`, {
                 method: 'PATCH',
@@ -379,138 +354,243 @@ const Feed = () => {
         }
     }
 
+    
+     /**
+     * Supprimer une demande d'adoption
+     */
+    async function handleDeleteApplication(application,cat) {
+        // Etes vous sur de vouloir supprimer cette adoption ?
+        const confirmDelete = window.confirm("Etes vous sur de vouloir supprimer cette adoption ?");
 
-/////////////////////////////////////RETURN/////////////////////////////////////////////////////////////////////
+        const user = session?.data?.user;
+
+        if (confirmDelete) {
+            try {
+                const response = await fetch(`/api/application/${application._id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({cat, user}),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to delete application : ${response.statusText}`);
+                    setErrorMessage("Une erreur est survenue - la demande n'a pas pu être supprimée")
+                }else {
+                    setErrorMessage("Adoption annulée")
+                    // Réinitialiser la session avec la version mise à jour
+                    const updatedUserApplications = user.applications.filter((app) => app._id !== application._id);
+                    await session.update({
+                        ...session.data,
+                        user: {
+                            ...session.data.user,
+                            application: updatedUserApplications,
+                        }
+                    });
+                    // retirer le chat de la liste des chats en cours d'adoption
+                    setApplicationCatList((prevList) =>
+                      prevList.filter((appCat) => appCat._id !== cat._id)
+                    );
+                    //mettre un timer pour un reload 2sc pour mettre à jour les chats
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                }
+
+            }catch (error) {
+                console.error('Error deleting application:', error);
+                setErrorMessage("Une erreur est survenue")
+            }
+        }
+    }
+
+        
+     /**
+     * Récupérer un user depuis une demande d'adoption
+     */
+    async function getUserByApplicationId(applicationid){
+        const response = await fetch(`/api/application/${applicationid}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const user = await response.json();
+
+        return user
+    }
+
+   
+
+
+//////////////RETURN///////////////////////RETURN/////////////////////////////JSX////////////////////RETURN////////////////////
+
     return (
-        <div className="feed-container">
-            <div className="chadopt-description">
-                <p>Adopter un chat, c&apos;est déclencher une avalanche de câlins et de moments #Adorables.
-                    Choisissez la #VoieduCœur en sauvant une vie poilue. Oubliez les boutiques,
-                    optez pour l&apos;amour #AdoptDontShop.
-                    Transformez votre feed en paradis félin avec un #ChatAdopté. 💖🐾 #ChadoptLove</p>
-            </div>
-
-
-
-
-            {session?.data?.user?.role === "admin" && (
-                <div className="feed-new-cat">
-                    <button className="btn" onClick={showCatModalSetter}>🐈 Ajouter un chat 🐈</button>
-                </div>
-            )}
-            <div className="chadopt-filtres">
-                <div className="label-wrapper">
-                    <label>Villes</label>
-                    <select
-                        value={selectedCity}
-                        onChange={(e) => setSelectedCity(e.target.value)}
-                    >
-                        <option value="All">Tout voir</option>
-                        {cities.map((city) => (
-                            <option key={city} value={city}>{city}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className="label-wrapper">
-                    <label>Statut</label>
-                    <select
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                    >
-                        <option value="All">Tout voir</option>
-                        {statuses.map((status) => (
-                            <option key={status} value={status}>{status}</option>
-                        ))}
-                    </select>
-                </div>
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={showFavorites}
-                        onChange={() => setShowFavorites(!showFavorites)}
-                    />
-                    Afficher mes chats préférés
-                </label>
-            </div>
-
-
-
-
-
-
-
-
-
-            <div className="user-chadopt-status">
-                {/*AFFICHER LE CHAT QUI EST EN DEMANDE PAR LE USER*/}
-                {session?.data?.user?.application && (
-                    <>
-                        <div className="chadopt-status">
-                            <div className="chadopt-status">
-                                <h1>😻</h1>
-                                <h2>Vous avez une adoption en cours</h2>
-                                <p>Statut : {session?.data?.user?.application?.applicationStatus}</p>
-                            </div>
-
-                            <div className="chadopt-status" id="status-info">
-                                <p>Vous devez attendre d&apos;avoir adopté <b>{applicationCat?.name}</b> avant de pouvoir adopter un
-                                    nouveau compagnon</p>
-                            </div>
-
-                            <div className="chadopt-group-btn" id="desadoptMoi" onClick={()=>handleDeleteApplication(session?.data?.user?.application)}>
-                                <div className="button" id="desadoptMoi-button">😿</div>
-                                <p className="button">Annuler ma demande d&apos;adoption</p>
-                            </div>
-                        </div>
-
-                        {applicationCat && (
-                            <div className='card-container-adoption'>
-                                <CatCard
-                                    cat={applicationCat}
-                                    key={applicationCat._id}
-                                    user={session?.data?.user}
-                                    setShowCatModal={showCatModalSetter}
-                                    handleClose={handleCloseModal}
-                                    getUserByApplicationId={getUserByApplicationId}
-                                />
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
-
-
-
-
-
-            {loading ? (
-                <p>Chargement en cours...</p>
-            ) : (
-                <CatCardList data={filteredCats} setShowCatModal={showCatModalSetter}
-                             handleClose={handleCloseModal} getUserByApplicationId={getUserByApplicationId}/>
-            )}
-
-
-
-
-
-
-            <div className="flex">
-                {showCatModal && <CatModal user={session.data?.user}
-                                           show={showCatModalSetter}
-                                           handleSave={handleSave}
-                                           handleDelete={handleDelete}
-                                           handleAdopt={handleAdopt}
-                                           handleClose={handleCloseModal}
-                                           getUserByApplicationId={getUserByApplicationId}
-                                           cat={modalCat}
-                                           handleCreate={handleCreate}
-                                           handlePatchApplication={handlePatchApplication}
-                                           errorMessage={errorMessage}
-                                           setErrorMessage={setErrorMessage}/>}
-            </div>
+      <div className="feed-container">
+        <div className="chadopt-description">
+          <p>
+            Adopter un chat, c&apos;est déclencher une avalanche de câlins et de
+            moments #Adorables. Choisissez la #VoieduCœur en sauvant une vie
+            poilue. Oubliez les boutiques, optez pour l&apos;amour
+            #AdoptDontShop. Transformez votre feed en paradis félin avec un
+            #ChatAdopté. 💖🐾 #ChadoptLove
+          </p>
         </div>
-    )
+
+        {session?.data?.user?.role === "admin" && (
+          <div className="feed-new-cat">
+            <button className="btn" onClick={showCatModalSetter}>
+              🐈 Ajouter un chat 🐈
+            </button>
+          </div>
+        )}
+        <div className="chadopt-filtres">
+          <div className="label-wrapper">
+            <label>Villes</label>
+            <select
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="All">Tout voir</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="label-wrapper">
+            <label>Statut</label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+              <option value="All">Tout voir</option>
+              {statuses.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+          <label>
+            <input
+              type="checkbox"
+              checked={showFavorites}
+              onChange={() => setShowFavorites(!showFavorites)}
+            />
+            Afficher mes chats préférés
+          </label>
+        </div>
+
+
+        <div className="user-chadopt-status">
+          {/* AFFICHER LES CHATS DANS LA LISTE D'APPLICATIONS */}
+          {session?.data?.user?.applications &&
+            applicationCatList.length > 0 && (
+              <>
+                <div className="chadopt-status">
+                  <h1>😻</h1>
+                  <h2>
+                    Vous avez {applicationCatList.length} adoption(s) en cours
+                  </h2>
+                </div>
+
+                <div className="card-container-adoption">
+                  {applicationCatList.map((cat, index) => (
+                    <div className="cards-adoption"
+                    key={cat._id}>
+                    <>
+                        <b>Statut :</b>{" "}
+                
+                    {session?.data?.user?.applications[index]?.applicationStatus === "Acceptée" ? (
+                        <span className="accepted" style={{fontWeight:"bold", color:"orange", backgroundColor:"yellow"}}>Acceptée ! </span>
+                    ) : session?.data?.user?.applications[index]?.applicationStatus === "En attente" ? (
+                        <span className="pending" style={{fontStyle:"italic"}}>En attente d'approbation par nos services</span>
+                    ) : (
+                        <span className="rejected" style={{fontWeight:"bold", color:"red"}}>Rejetée</span>
+                    )}
+                  </>
+                      <CatCard
+                        cat={cat}
+                        key={cat._id}
+                        user={session?.data?.user}
+                        setShowCatModal={showCatModalSetter}
+                        handleClose={handleCloseModal}
+                        getUserByApplicationId={getUserByApplicationId}
+                        applicationCatList={applicationCatList}
+                      />
+                      <div
+                        className="chadopt-group-btn"
+                        id="desadoptMoi"
+                       
+                      >
+                        {cat.adoptionStatus === "adopté" ? (
+                            <>
+                            <div className="button" id="desadoptMoi-button"
+                            >
+                            😽
+                            </div>
+                             <p>Je gratterai à ta porte dans quelques jours !</p>
+                             </>
+                    
+                         
+                        ) : (
+                            <div onClick={() =>
+                                handleDeleteApplication(
+                                session?.data?.user?.applications[index], 
+                                  cat
+                                )
+                              }>
+                                {session?.data?.user?.applications[index]._id}
+                            <div className="button" id="desadoptMoi-button"
+                             >
+                               😿
+                             </div>
+                             <p className="button">Annuler ma demande d'adoption</p>
+                            </div>
+                            )}
+                         </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+        </div>
+
+        {loading ? (
+          <p>Chargement en cours...</p>
+        ) : (
+          <CatCardList
+            data={filteredCats}
+            setShowCatModal={showCatModalSetter}
+            handleClose={handleCloseModal}
+            getUserByApplicationId={getUserByApplicationId}
+            applicationCatList={applicationCatList}
+          />
+        )}
+
+        <div className="flex">
+          {showCatModal && (
+            <CatModal
+              user={session.data?.user}
+              show={showCatModalSetter}
+              handleSave={handleSave}
+              handleDelete={handleDelete}
+              handleAdopt={handleAdopt}
+              handleClose={handleCloseModal}
+              getUserByApplicationId={getUserByApplicationId}
+              cat={modalCat}
+              handleCreate={handleCreate}
+              handlePatchApplication={handlePatchApplication}
+              errorMessage={errorMessage}
+              setErrorMessage={setErrorMessage}
+            />
+          )}
+        </div>
+      </div>
+    );
 }
 
 export default Feed

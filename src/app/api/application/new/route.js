@@ -22,8 +22,8 @@ export const POST = async (req, res) => {
             await Cat.findByIdAndUpdate(cat._id, { applications: cat.applications });
 
             // Ajouter l'application dans le user
-            user.application = newApplication;
-            await User.findByIdAndUpdate(user._id, { application: user.application }, { new: true });
+            user.applications.push(newApplication);
+            await User.findByIdAndUpdate(user._id, { applications: user.applications });
 
             // status 201 signifie : created
             return new Response(JSON.stringify(newApplication), { status: 201 });

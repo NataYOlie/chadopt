@@ -54,10 +54,10 @@
 
 .user-chadopt-status {
     display: flex;
-    flex-direction: row;
-    justify-content: space-around;
+    flex-direction: column ;
+    /* justify-content: space-around; */
     align-items: center;
-    width: 60%;
+    width: 80%;
     background-color: rgba(146, 203, 33, 0.82);
     border-radius: 20px;
 }
@@ -68,8 +68,8 @@
 
 .chadopt-status {
     margin: 1rem;
-    display: flex;
-    flex-direction: column;
+    /* display: flex;
+    flex-direction: column; */
 }
 
 .user-chadopt-status h2 {
@@ -80,6 +80,25 @@
     color: whitesmoke;
 }
 
+.card-container-adoption{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center !important; 
+    align-items: flex-start; 
+    margin-right: auto;
+    margin-left: auto;
+
+}
+
+.cards-adoption{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.cards-adoption p {
+    align-self: flex-start;
+}
 
 /* Style de base pour le select */
 select {

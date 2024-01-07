@@ -30,9 +30,10 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
 
 
 //////////PRE CRUD ////////////////////////////////////////////////////////////////////////
-    function handleSendToSave() {
+    function handleSendToSave(cat) {
         const updatedCat = getUpdatedCat()
-        handleSave(updatedCat);
+        const patchCat = { ...cat, ...updatedCat };
+        handleSave(patchCat);
     }
 
     function handleSendToCreate(){
@@ -52,7 +53,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
             name: editedName,
             description: editedDescription,
             city: editedCity,
-            adoptionStatus: editedStatus, // Correction du nom du champ
+            adoptionStatus: editedStatus, 
             sex: editedSex,
             birthdate: editedBirthdate,
             breed: editedBreed,
@@ -170,31 +171,31 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                                         <p>{application.applicationStatus}</p>
                                         {/* pour chaque proposer un select afin de changer le statut de l'application */}
                                         {application.applicationStatus === "Acceptée" && (
-    <>
-        <button type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
-            Rejeter la demande
-        </button>
-        <button type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>Mettre en attente</button>
-    </>
-)}
-{application.applicationStatus === "Rejetée" && (
-    <>
-        <button type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>
-            Accepter la demande
-        </button>
-        <button type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>
-            Mettre en attente
-        </button>
-    </>
-)}
-{application.applicationStatus === "En attente" && (
-    <>
-        <button type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>Accepter la demande</button>
-        <button type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
-            Rejeter la demande
-        </button>
-    </>
-)}
+                                            <>
+                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
+                                                    Rejeter la demande
+                                                </button>
+                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>Mettre en attente</button>
+                                            </>
+                                        )}
+                                        {application.applicationStatus === "Rejetée" && (
+                                            <>
+                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>
+                                                    Accepter la demande
+                                                </button>
+                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>
+                                                    Mettre en attente
+                                                </button>
+                                            </>
+                                        )}
+                                        {application.applicationStatus === "En attente" && (
+                                            <>
+                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>Accepter la demande</button>
+                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
+                                                    Rejeter la demande
+                                                </button>
+                                            </>
+                                        )}
                                         <select
                                             className="form-input"
                                             id="status"
@@ -229,19 +230,16 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                                 <p>Femelle</p>
                             </div>
                         )}
-
                         <p>🏙️ {cat.city}</p>
                         <p>🐈 {cat.breed}</p>
                         <p>🎂 {catAge(cat)}</p>
                     </div>
                 )}
-
-
             </Modal.Body>
             <Modal.Footer>
                 {/* ADMIN MODE / Editing mode : Créer ou modifier un chat */}
                 {editing && (
-                    <div className="chadopt-group-btn" onClick={cat._id ? handleSendToSave : handleSendToCreate}>
+                    <div className="chadopt-group-btn" onClick={cat._id ? ()=>handleSendToSave(cat) : handleSendToCreate}>
                         <p className="chadopt-btn">{cat._id ? 'Modifie Moi !' : 'Crée Moi !'}</p>
                         <div className="button" id="button">{cat._id ? '🙀' : '😺'}</div>
                     </div>
@@ -266,7 +264,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                         Fermer
                     </Button>
 
-                    {/* Delete button for editing mode and when the cat has an ID */}
+                    {/* Delete button for editing mode and only when the cat has an ID to be hidden in create cat mode */}
                     {editing && cat._id && (
                         <Button variant="secondary" onClick={() => handleDelete(cat)}>
                             Supprimer ce chat
