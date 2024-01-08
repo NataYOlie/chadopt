@@ -56,8 +56,6 @@ const Nav = () => {
                         <h1>Chadopt'</h1>
                         <h4>Un amimal ne s'achète pas, il se Chadopt'!</h4>
                     </div>
-                    
-
                 </div>
         </div>
     )
