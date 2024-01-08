@@ -8,6 +8,89 @@
     margin-right: auto;
     margin-left: auto;
 }
+
+.feed-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+
+/* BLOC TEXTE ADOPTION RESPONSABLE */
+.chadopt-description{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    /* border: black 2px solid; */
+    border-radius: 30px;
+    background-color: var(--white-bg) ;
+    width: 75%;
+    margin: 2rem;
+    padding: 2rem;
+}
+
+.chadopt-description p{
+    font-size: 1.2rem;
+    text-align: justify;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.chadopt-description img {
+    /* sauvegarder les proportions */
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+
+}
+
+.chadopt-description h3{
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.chadopt-description-text{
+    max-width: 60%;
+    padding: 1rem;
+}
+
+
+/* FILTRES  */
+.chadopt-filtres {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin-top: 5rem;
+    width: 100%;
+    padding: 2rem;
+    background-color: var(--white-bg) ;
+}
+
+.chadopt-filtrez-fav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center ;
+}
+
+.chadopt-filtrez-fav p {
+    padding-left: 1rem;
+    font-weight: bold;
+}
+
+.chadopt-flitres-select {
+    display: flex ; 
+    flex-direction: row;
+}
+
+
+/* BLOC ADOPTION EN COURS DU USER */
+
 .card-container adoption{
     display: flex;
     flex-direction: row;
@@ -18,48 +101,13 @@
     margin-left: auto;
 }
 
-.feed-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center !important;
-    align-items: center;
-    padding: 2%;
-    margin-right: auto;
-    margin-left: auto;
-}
-
-.chadopt-description{
-    border: black 2px solid;
-    border-radius: 30px;
-    width: 75%;
-    margin: 2rem;
-    padding: 2rem;
-}
-
-.chadopt-description p{
-    font-size: 1.5rem;
-    text-align: center;
-}
-.chadopt-filtres {
-    /*border: black 2px solid;*/
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    flex-direction: row;
-    border-radius: 30px;
-    width: 80%;
-    margin: 2rem;
-    padding: 2rem;
-}
-
 .user-chadopt-status {
     display: flex;
     flex-direction: column ;
     /* justify-content: space-around; */
     align-items: center;
-    width: 80%;
-    background-color: rgba(146, 203, 33, 0.82);
-    border-radius: 20px;
+    width: 100%;
+    background-color: var(--color-chadopt);;
 }
 
 .user-chadopt-status p {
@@ -68,8 +116,10 @@
 
 .chadopt-status {
     margin: 1rem;
-    /* display: flex;
-    flex-direction: column; */
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
 }
 
 .user-chadopt-status h2 {
@@ -100,7 +150,39 @@
     align-self: flex-start;
 }
 
-/* Style de base pour le select */
+
+/* BOUTON CREER UN NOUVEAU CHAT */
+.feed-new-cat {
+    display: flex;
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center;
+    width: 100%;
+    margin-right: none important;
+    margin-left: auto;
+}
+
+.feed-new-cat h2 {
+    color: white;
+    margin-top: 1rem;
+}
+
+.newCatbtn {
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 20px;
+    border: black 2px solid !important;
+    background-color: var(--color-chadopt);
+    color: whitesmoke;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: none;
+}
+
+
+
+/* GENERIQUES POUR LES SELECTS */
+
 select {
     padding: 8px;
     font-size: 16px;
@@ -112,20 +194,28 @@ select {
     background-color: whitesmoke;
 }
 
-/* Style des options du select */
 select option {
     font-size: 16px;
 }
 
-/* Style du label pour la checkbox */
 label {
     display: flex;
+    font-weight: bold;
     align-items: center;
     margin-left: 10px;
     font-size: 16px;
 }
 
-/* Style de la checkbox */
 input[type="checkbox"] {
     margin-right: 5px;
+}
+
+
+
+/* MEDIA QUERIES */
+
+@media screen and (max-width: 700px) {
+    .chadopt-description {
+        display: none;
+    }
 }

@@ -32,25 +32,31 @@ const Nav = () => {
     return (
         <div className="nav-container">
                 <div className="container-fluid">
-                    <div>
-                        {statusInfo()}
-                    </div>
+                {session ? ( <div className="nav-session">
+                        <p>
+                            <FontAwesomeIcon icon={faUser} className="nav-faicon"/>    
+                        </p>
+                        <p>{" " + session?.user?.username}</p>
+                        <p className="nav-logout" onClick={() => signOut()}>
+                            <FontAwesomeIcon icon={faRightFromBracket} className="nav-faicon" onClick={() => signOut()}/>
+                        </p>
+                    </div>) : (
+                        <>
+                        {status === 'loading' && <p>Chargement de la session...</p>}
+                        <div className="flex flex nav-session">
+                            <p onClick={handleLoginClick}>Login</p>
+                            {showLoginModal && <LoginModal show={showLoginModal} handleClose={handleCloseModal} />}
+                        </div>
+                        </>
+                    )}
+
+
                     <div className="logo">
                         <img src="pet_512.png"/>
                         <h1>Chadopt'</h1>
+                        <h4>Un amimal ne s'achète pas, il se Chadopt'!</h4>
                     </div>
-                    {session ? ( <div>
-                        <FontAwesomeIcon icon={faUser}/>
-                        {" " + session?.user?.username}
-                        <button className="btn btn-secondary" onClick={() => signOut()}>
-                            <FontAwesomeIcon icon={faRightFromBracket}/>
-                        </button>
-                    </div>) : (
-                        <div className="flex">
-                            <p onClick={handleLoginClick}>Login</p>
-                            {showLoginModal && <LoginModal show={showLoginModal} handleClose={handleCloseModal} />}
-                        </div>)
-                    }
+                    
 
                 </div>
         </div>

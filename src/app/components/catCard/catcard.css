@@ -16,7 +16,7 @@
 
 .card .description {
     position: absolute;
-    top: 0%; /* Placez-le en dessous de la carte */
+    top: 0%; 
     left: 0;
     width: 100%;
     padding: 1rem;
@@ -29,14 +29,14 @@
 
 .card:hover .chadopt-group-btn {
     display: block;
-    opacity: 1; /* Augmentez l'opacité à 1 pour révéler avec animation */
+    opacity: 1; /* opacité à 1 pour révéler avec animation */
     height: 100%;
 }
+
 .card:hover .description {
     display: block; /* Rendre visible lors du survol */
     opacity: 1; /* Augmentez l'opacité à 1 pour révéler avec animation */
 }
-
 
 .card img {
     border-radius: 5px 5px 0 0;
@@ -60,26 +60,16 @@
     direction: column;
 }
 .card-favorite{
-    /*position : absolute;*/
-    /*bottom: 0;*/
-    /*left: 0;*/
     justify-content: flex-start;
     padding-right: 1rem;
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 0 0 5px 5px;
 }
 
-
 .label-wrapper {
     display: flex;
     flex-direction: column;
-    margin-bottom: 10px; /* Ajoutez une marge en bas pour l'espace */
-}
-
-/* Appliquez ce style à votre label et select */
-.label-wrapper label,
-.label-wrapper select {
-    /* Ajoutez d'autres styles si nécessaire */
+    margin-bottom: 10px;
 }
 
 .status {

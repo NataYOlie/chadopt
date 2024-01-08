@@ -103,30 +103,40 @@ const CatCard = ({cat, setShowCatModal, handleClose, getUserByApplicationId}) =>
         <div className="description" onClick={() => setShowCatModal(cat)}>
           <p>{cat.description}</p>
         </div>
-
-        {/*    Si le chat est adopté par le user lebouton deviens tu m'as chadopté*/}
+        {/* Si le chat est adopté, le bouton devient "Tu m'as déjà chadopté" */}
         <div className="chadopt-group-btn">
             {cat.applications?.some((catApp) =>
                 session?.data?.user?.applications?.some(
-                (userApp) => catApp._id === userApp._id
+                    (userApp) => catApp._id === userApp._id
                 )
             ) ? (
-                <div className="chadopt-group-btn" key={cat._id}>
-                <div className="button" id="button">
-                    😻
-                </div>
+                <div key={cat._id}>
+                    <div className="button" id="button">
+                        😻
+                    </div>
                     <p className="chadopt-btn">Tu m&apos;as déjà chadopté !</p>
                 </div>
-            ) : (
-                <div className="chadopt-group-btn">
-                    <p className="chadopt-btn" onClick={()=>setShowCatModal(cat)}>Chadopt&apos; Moi !</p>
-                <div className="button" id="button">
-                    😸
+            ) : catStatus(cat) === "adopté" ? (
+                <div>
+                     <p className="chadopt-btn" onClick={() => setShowCatModal(cat)}>
+                        Ce chat est déjà adopté !
+                    </p>
+                    <div className="button" id="button">
+                    🐱
+                    </div>
                 </div>
+            ) : (
+                <div>
+                    <p className="chadopt-btn" onClick={() => setShowCatModal(cat)}>
+                        Chadopt&apos; Moi !
+                    </p>
+                    <div className="button" id="button">
+                        😸
+                    </div>
                 </div>
             )}
-            </div>
-      </div>
+        </div>
+        </div>
     );
 }
 

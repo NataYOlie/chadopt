@@ -246,7 +246,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                 )}
 
                 {/* Bouton de base */}
-                {!editing && cat._id && (
+                {!editing && cat._id && catStatus(cat) !== "adopté" && (
                     <div className="chadopt-group-btn" onClick={() => handleAdopt(cat)}>
                         <p className="chadopt-btn">Chadopt&apos; Moi !</p>
                         <div className="button" id="button">😸</div>

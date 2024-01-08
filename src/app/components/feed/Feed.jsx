@@ -5,6 +5,8 @@ import {useEffect, useState} from "react";
 import {useSession} from "next-auth/react";
 import CatModal from "@/app/components/modals/CatModal";
 import {catStatus} from "@/utils/catStatus";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faSliders} from "@fortawesome/free-solid-svg-icons";
 
 /**
  * Crée les cards pour chaque chat
@@ -24,7 +26,7 @@ const CatCardList = ({data, user, setShowCatModal, handleClose, getUserByApplica
                     />
                 ))
             ) : (
-                <p>No cats to display</p>
+                <p>Aucun chat ne correspond à vos option de filtrage</p>
             )}
         </div>
     );
@@ -36,17 +38,18 @@ const CatCardList = ({data, user, setShowCatModal, handleClose, getUserByApplica
 const Feed = () => {
     const session = useSession();
     const [allCats, setAllCats] = useState([]);
-    const [loading, setLoading] = useState(true); // État pour suivre le chargement
-    const [showFavorites, setShowFavorites] = useState(false); // État pour filtrer par favoris
+    const [loading, setLoading] = useState(true); // État pour suivre le chargement du feed
+    const [showFavorites, setShowFavorites] = useState(false); 
     const [selectedCity, setSelectedCity] = useState('All');
     const [cities, setCities] = useState([]);
-    const [selectedStatus, setSelectedStatus] = useState('All');
+    const [selectedStatus, setSelectedStatus] = useState('disponible');//par défaut on ne voit que les chats disponibles
     const [statuses, setStatuses] = useState([]);
     const [filteredCats, setFilteredCats] = useState([]);
     const [showCatModal, setShowCatModal] = useState(false);
     const [modalCat, setModalCat] = useState(null)
     const [errorMessage, setErrorMessage] = useState('');
     const [applicationCatList, setApplicationCatList] = useState([]); //Pour les demandes d'adoption en cours du user
+    const [toggleUserChadoptStatus, setToggleUserChadoptStatus] = useState(false); 
 
 
 
@@ -197,6 +200,35 @@ const Feed = () => {
         setLoading(false);
     };
 
+
+    /**
+     * Créer un chat
+     */
+    async function handleCreate(cat) {
+        console.log("create cat")
+        try {
+            const response = await fetch("/api/cat/new", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cat),
+            });
+
+            const newCat = await response.json();
+            console.log('New cat:', newCat);
+            setErrorMessage("Nouveau chat ajoute")
+            //mettre un timer pour un reload 2sc pour mettre à jour les chats
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+
+        } catch (error) {
+            console.error('Error creating cat:', error);
+        }
+    }
+
+
     /**
      * Modifier un chat 
      */
@@ -227,32 +259,6 @@ const Feed = () => {
         }
     }
 
-    /**
-     * Créer un chat
-     */
-    async function handleCreate(cat) {
-        console.log("create cat")
-        try {
-            const response = await fetch("/api/cat/new", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(cat),
-            });
-
-            const newCat = await response.json();
-            console.log('New cat:', newCat);
-            setErrorMessage("Nouveau chat ajoute")
-            //mettre un timer pour un reload 2sc pour mettre à jour les chats
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-
-        } catch (error) {
-            console.error('Error creating cat:', error);
-        }
-    }
 
     /**
      * Supprimer un chat
@@ -385,7 +391,7 @@ const Feed = () => {
                         ...session.data,
                         user: {
                             ...session.data.user,
-                            application: updatedUserApplications,
+                            applications: updatedUserApplications,
                         }
                     });
                     // retirer le chat de la liste des chats en cours d'adoption
@@ -422,80 +428,25 @@ const Feed = () => {
     }
 
    
-
-
 //////////////RETURN///////////////////////RETURN/////////////////////////////JSX////////////////////RETURN////////////////////
 
     return (
       <div className="feed-container">
-        <div className="chadopt-description">
-          <p>
-            Adopter un chat, c&apos;est déclencher une avalanche de câlins et de
-            moments #Adorables. Choisissez la #VoieduCœur en sauvant une vie
-            poilue. Oubliez les boutiques, optez pour l&apos;amour
-            #AdoptDontShop. Transformez votre feed en paradis félin avec un
-            #ChatAdopté. 💖🐾 #ChadoptLove
-          </p>
-        </div>
-
-        {session?.data?.user?.role === "admin" && (
-          <div className="feed-new-cat">
-            <button className="btn" onClick={showCatModalSetter}>
-              🐈 Ajouter un chat 🐈
-            </button>
-          </div>
-        )}
-        <div className="chadopt-filtres">
-          <div className="label-wrapper">
-            <label>Villes</label>
-            <select
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-            >
-              <option value="All">Tout voir</option>
-              {cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="label-wrapper">
-            <label>Statut</label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-            >
-              <option value="All">Tout voir</option>
-              {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-          <label>
-            <input
-              type="checkbox"
-              checked={showFavorites}
-              onChange={() => setShowFavorites(!showFavorites)}
-            />
-            Afficher mes chats préférés
-          </label>
-        </div>
-
-
-        <div className="user-chadopt-status">
+          <div className="user-chadopt-status">
           {/* AFFICHER LES CHATS DANS LA LISTE D'APPLICATIONS */}
           {session?.data?.user?.applications &&
-            applicationCatList.length > 0 && (
+                applicationCatList.length > 0 && (
+                    <div className="chadopt-status" onClick = {() => setToggleUserChadoptStatus(!toggleUserChadoptStatus)}>
+                    <h1>😻</h1>
+                    <h2>
+                        Vous avez {applicationCatList.length} adoption(s) en cours
+                    </h2>
+                    </div>
+                )}
+
+          {session?.data?.user?.applications &&
+            applicationCatList.length > 0 && toggleUserChadoptStatus && (
               <>
-                <div className="chadopt-status">
-                  <h1>😻</h1>
-                  <h2>
-                    Vous avez {applicationCatList.length} adoption(s) en cours
-                  </h2>
-                </div>
 
                 <div className="card-container-adoption">
                   {applicationCatList.map((cat, index) => (
@@ -524,7 +475,6 @@ const Feed = () => {
                       <div
                         className="chadopt-group-btn"
                         id="desadoptMoi"
-                       
                       >
                         {cat.adoptionStatus === "adopté" ? (
                             <>
@@ -558,6 +508,87 @@ const Feed = () => {
               </>
             )}
         </div>
+        <div className="chadopt-description">
+            <img src="https://cataas.com/cat/says/Adopte Moi?fontSize=20&fontColor=white&type=square" />
+            <div className="chadopt-description-text">
+                <h3>L'adoption responsable est au coeur de la démarche Chadopt'</h3>
+                <br/>
+                <br/>
+                <p>
+                En offrant un foyer aimant à un compagnon adopté, vous écrivez une nouvelle histoire de bonheur partagé. 
+                La compassion que vous investissez dans cette démarche se transforme en une aventure mutuelle, tissée de liens indéfectibles 
+                et d'échanges enrichissants. Au-delà de l'acte altruiste, l'adoption devient une source inépuisable de joie, 
+                apportant un équilibre harmonieux dans la vie de chacun. Opter pour l'adoption responsable, c'est créer un impact durable, 
+                unissant destinées humaines et animales dans une symphonie de bonheur partagé. 
+                <br/>
+                </p>
+                <br/>
+                <h3>
+                🐾💖 #AdoptionResponsable #Chadoptez
+                </h3>
+                
+            </div>
+        </div>
+
+
+        {session?.data?.user?.role === "admin" && (
+          <div className="feed-new-cat">
+            <p> vous êtes connecté en tant qu'administrateur </p>
+            <button className="btn newCatbtn" onClick={showCatModalSetter}>
+              🐈 Ajouter un chat 🐈
+            </button>
+        
+          </div>
+        )}
+
+
+        <div className="chadopt-filtres">
+        <div className="chadopt-flitres-select">
+          <div className="label-wrapper">
+            <label>Villes</label>
+            <select
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="All">Tout voir</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="feed label-wrapper">
+            <label>Statut</label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+              <option value="All">Tout voir</option>
+              {statuses.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+            </div>
+          </div>
+
+        <div className="chadopt-filtrez-fav">
+          <label>
+            <input
+              type="checkbox"
+              checked={showFavorites}
+              onChange={() => setShowFavorites(!showFavorites)}
+            />
+            Afficher mes chats préférés
+          </label>
+          </div>
+        </div>
+
+
+
+      
 
         {loading ? (
           <p>Chargement en cours...</p>
