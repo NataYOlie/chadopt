@@ -1,7 +1,7 @@
 
 # Chadopt
 
-Chadopt' is the equivalent of the famous website [https://www.adopteunmec.com/](https://www.adopteunmec.com/) but for adopting a cat.
+Chadopt' is the equivalent of the famous website [https://www.adopteunmec.com/](https://www.adopteunmec.com/) but for adopting a cat. 
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
@@ -23,9 +23,11 @@ npm install
 
 random cat pictures are furnished by https://cataas.com/
 
+🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈
 ## Getting Started
 
 ### See it in action
+
 
 #### No User connected
 ![chadopt_noUser_demo-1](https://raw.githubusercontent.com/NataYOlie/chadopt/master/public/demo/intro_chadopt.gif)
@@ -34,22 +36,28 @@ random cat pictures are furnished by https://cataas.com/
 ![chadopt_noUser_demo_2](https://github.com/NataYOlie/chadopt/blob/master/public/demo/2_userCantAdoptIfNotConnected.gif?raw=true)
 **User can authentify or create account** 
 ![chadopt_noUser_demo_3](https://github.com/NataYOlie/chadopt/blob/master/public/demo/3_createAccount.gif?raw=true)
-
+- - - 
 #### User is connected
-**Authenticated users can add cats to their favorites and apply filters.**
+**Authenticated users can add cats to their favorites and apply filters. ❤️**
 ![chadopt_noUser_demo_4](https://github.com/NataYOlie/chadopt/blob/master/public/demo/4_userCanFilterFavorites.gif?raw=true)
-**Authenticated users can adopt cats**
+
+**Authenticated users can adopt a cat** 😻
 ![chadopt_noUser_demo_4](https://github.com/NataYOlie/chadopt/blob/master/public/demo/5_userCanAdoptCat.gif?raw=true)
-**Multiple cats**
+
+**Multiple cats** 😻😻
 ![chadopt_noUser_demo_5](https://github.com/NataYOlie/chadopt/blob/master/public/demo/5bis_UsercanAdopt2cats.gif?raw=true)
-**Authenticated users can change their mind**
+
+**Authenticated users can change their mind** 😿
 ![chadopt_noUser_demo_5bis](https://github.com/NataYOlie/chadopt/blob/master/public/demo/6_UserCanDesadopt.gif?raw=true)
+- - - 
 #### Admin is connected
-**Admin can create a cat**
+**Admin can create a cat** 😻
 ![chadopt_noUser_demo_5bis](https://github.com/NataYOlie/chadopt/blob/master/public/demo/7_AdminCanCreateCat.gif?raw=true)
-**Admin can modify cat and accept or reject adoption application**
+
+**Admin can modify cat and accept or reject adoption application** ❤️
 ![chadopt_noUser_demo_5bis](https://github.com/NataYOlie/chadopt/blob/master/public/demo/8_AdminCanodifyCat_appStatus.gif?raw=true)
-**Admin can also delete cat, but we prefer not to show such a poor experience**
+
+Admin can also delete cat, but we prefer not to show such a poor experience.
 
 ### See it by yourself !
 First, run the development server :
