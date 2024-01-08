@@ -31,6 +31,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
 
 //////////PRE CRUD ////////////////////////////////////////////////////////////////////////
     function handleSendToSave(cat) {
+
         const updatedCat = getUpdatedCat()
         const patchCat = { ...cat, ...updatedCat };
         handleSave(patchCat);
@@ -148,13 +149,14 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                             <option value="Européen">Européen</option>
                             <option value="Angora">Angora</option>
                         </select>
+                        <div className="status-container">
                         <label htmlFor="status">Statut d&apos;adoption</label>
-                        {cat.applications.length > 0? (
-                            <>
-                                <p>{cat.name} a {cat.applications.length} demande(s) en cours</p>
+                        {cat.applications?.length > 0? (
+                            <div>
+                                <p>{cat.name} a {cat.applications?.length} demande(s) en cours</p>
                                 {/* map les demandes d'adoptions du cat.applications */}
                                 {cat.applications.map((application, index) => (
-                                    <div key={application._id}>
+                                    <div className="status-card" key={application._id}>
                                         <label>Date de demande d'adoption</label>
                                         <p>{new Date(application.applicationDate).toLocaleDateString('fr-FR', {
                                             year: 'numeric',
@@ -205,12 +207,13 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                                         )}
                                     </div>
                                 ))}
-                            </>
+                            </div>
                         ) : (
                             <>
                                 {catStatus(cat)}
                             </>
                         )}
+                        </div>
                     </form>
                     </div>
 

@@ -138,3 +138,18 @@
     display: flex;
     justify-content: space-between;
 }
+
+.status-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-left : 1rem;
+    padding-right : 1rem;
+
+}
+
+.status-card{
+    padding: 1rem;
+    border: rgba(0, 0, 0, 0.47) 1px solid;
+    margin-bottom: 1rem;
+}

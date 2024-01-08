@@ -303,7 +303,11 @@ const Feed = () => {
         const user = session?.data?.user;
         console.log("HANDLE ADOPT user")
         console.log(user)
-       
+
+        if(!user){
+            setErrorMessage("Vous devez être connecté pour Adopter un chat")
+            return
+        }else {
             try {
                 const response = await fetch(`/api/application/new`, {
                     method: 'POST',
@@ -333,6 +337,9 @@ const Feed = () => {
                 console.error('Error creating application:', error);
                 setErrorMessage("Une erreur est survenue")
             }
+        }
+       
+          
         
     }
 
@@ -357,7 +364,12 @@ const Feed = () => {
             const data = await response.json();
     
             setErrorMessage(`Demande enregistrée comme ${status} !`);
+            
+             //mettre un timer pour un reload 2sc pour mettre à jour les chats
+             setTimeout(window.location.reload(), 2000);
+             
             return data;
+
 
         } catch (error) {
             console.error("Error patching application:", error);
@@ -580,18 +592,20 @@ const Feed = () => {
             </select>
             </div>
           </div>
-
-        <div className="chadopt-filtrez-fav">
-            {showFavorites ?(
-                <FontAwesomeIcon icon={faHeart} style={{color:"red", cursor:"pointer"}} onClick={() => setShowFavorites(!showFavorites)} />
-                ):(
-                <FontAwesomeIcon icon={faHeart} style={{cursor:"pointer"}} onClick={() => setShowFavorites(!showFavorites)} />
+                {session?.data?.user && (
+                        <div className="chadopt-filtrez-fav">
+                        {showFavorites ?(
+                            <FontAwesomeIcon icon={faHeart} style={{color:"red", cursor:"pointer"}} onClick={() => setShowFavorites(!showFavorites)} />
+                            ):(
+                            <FontAwesomeIcon icon={faHeart} style={{cursor:"pointer"}} onClick={() => setShowFavorites(!showFavorites)} />
+                            )}
+                        
+                        <label onClick={() => setShowFavorites(!showFavorites)}>
+                        Afficher mes chats préférés
+                        </label>
+                        </div>
                 )}
-            
-          <label onClick={() => setShowFavorites(!showFavorites)}>
-            Afficher mes chats préférés
-          </label>
-          </div>
+       
         </div>
 
 
