@@ -6,7 +6,7 @@ import {useSession} from "next-auth/react";
 import CatModal from "@/app/components/modals/CatModal";
 import {catStatus} from "@/utils/catStatus";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faSliders} from "@fortawesome/free-solid-svg-icons";
+import {faHeart, faSliders} from "@fortawesome/free-solid-svg-icons";
 
 /**
  * Crée les cards pour chaque chat
@@ -26,7 +26,12 @@ const CatCardList = ({data, user, setShowCatModal, handleClose, getUserByApplica
                     />
                 ))
             ) : (
+                <div style={{textAlign:"center"}}>
                 <p>Aucun chat ne correspond à vos option de filtrage</p>
+                <br/>
+                <p style={{fontSize:"0.8rem", fontStyle:"italic"}}>Les chats qui correspondent à vos adoptions en cours se trouvent dans le module de vos adoptions en haut de la page</p>
+                </div>
+
             )}
         </div>
     );
@@ -52,7 +57,6 @@ const Feed = () => {
     const [toggleUserChadoptStatus, setToggleUserChadoptStatus] = useState(false); 
 
 
-
     /**
      * Récupère tous les chats de la base de données
      */
@@ -60,6 +64,10 @@ const Feed = () => {
         fetchAllCats();
 
     }, []);
+
+    useEffect(() => {
+        setErrorMessage('')
+    }, [showCatModal]),
 
 
     /**
@@ -493,7 +501,6 @@ const Feed = () => {
                                   cat
                                 )
                               }>
-                                {session?.data?.user?.applications[index]._id}
                             <div className="button" id="desadoptMoi-button"
                              >
                                😿
@@ -541,8 +548,11 @@ const Feed = () => {
           </div>
         )}
 
-
+        
         <div className="chadopt-filtres">
+            <div className="chadopt-filtres-title">
+            <h1>Nos chats à l'adoption</h1>
+            </div>
         <div className="chadopt-flitres-select">
           <div className="label-wrapper">
             <label>Villes</label>
@@ -575,12 +585,13 @@ const Feed = () => {
           </div>
 
         <div className="chadopt-filtrez-fav">
-          <label>
-            <input
-              type="checkbox"
-              checked={showFavorites}
-              onChange={() => setShowFavorites(!showFavorites)}
-            />
+            {showFavorites ?(
+                <FontAwesomeIcon icon={faHeart} style={{color:"red", cursor:"pointer"}} onClick={() => setShowFavorites(!showFavorites)} />
+                ):(
+                <FontAwesomeIcon icon={faHeart} style={{cursor:"pointer"}} onClick={() => setShowFavorites(!showFavorites)} />
+                )}
+            
+          <label onClick={() => setShowFavorites(!showFavorites)}>
             Afficher mes chats préférés
           </label>
           </div>

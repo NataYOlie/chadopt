@@ -7,6 +7,7 @@
     padding: 2%;
     margin-right: auto;
     margin-left: auto;
+    background-color: var(--white-bg);
 }
 
 .feed-container {
@@ -16,6 +17,7 @@
     align-items: center;
     margin-right: auto;
     margin-left: auto;
+
 }
 
 
@@ -63,6 +65,8 @@
 .chadopt-filtres {
     display: flex;
     justify-content: space-around;
+    flex-wrap: wrap;
+    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     flex-direction: row;
@@ -70,6 +74,12 @@
     width: 100%;
     padding: 2rem;
     background-color: var(--white-bg) ;
+}
+
+.chadopt-filtres-title{
+    width: 100%;
+    text-align: center;
+    padding-bottom: 3rem;
 }
 
 .chadopt-filtrez-fav{

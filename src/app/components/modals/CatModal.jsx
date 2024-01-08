@@ -113,6 +113,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
 
                 {/*MODE ADMIN EDITION OU MODE AFFICHAGE*/}
                 {editing? (
+                    <div className="catModal-form">
                     <form className="form">
                         {/* Ajouter d'autres champs éditables ici */}
                         <label htmlFor="sex">Sexe</label>
@@ -144,7 +145,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                             <option value="Angora">Angora</option>
                         </select>
                         <label htmlFor="status">Statut d&apos;adoption</label>
-                        {catStatus(cat) === "demande en cours" ? (
+                        {cat.applications.length > 0? (
                             <>
                                 <p>{cat.name} a {cat.applications.length} demande(s) en cours</p>
                                 {/* map les demandes d'adoptions du cat.applications */}
@@ -159,6 +160,7 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                                         <div>
                                             <div>
                                             {/* Call handleAdoptUser to fetch and store user data */}
+                                            <label>Utilisateur à l'initiative de la demande</label>
                                                 {handleAdoptUser(application._id)}
                                             </div>
                                             {/* Display the user data for each application */}
@@ -166,55 +168,47 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
                                                 <p key={index}> par {adoptUserList[index]?.username}</p>
                                             )}
                                                 
-                                        </div>
+                                        </div> <label>Référence pour cette demande d'adoption</label>
                                         <p>{application._id}</p>
+                                        <label>Statut de la demande</label>
                                         <p>{application.applicationStatus}</p>
                                         {/* pour chaque proposer un select afin de changer le statut de l'application */}
                                         {application.applicationStatus === "Acceptée" && (
                                             <>
-                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
+                                                <button className="btn" type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
                                                     Rejeter la demande
                                                 </button>
-                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>Mettre en attente</button>
+                                                <button className="btn" type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>Mettre en attente</button>
                                             </>
                                         )}
                                         {application.applicationStatus === "Rejetée" && (
                                             <>
-                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>
+                                                <button className="btn" type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>
                                                     Accepter la demande
                                                 </button>
-                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>
+                                                <button className="btn" type="button" onClick={() => handleSendToPatchApp(application._id, "En attente")}>
                                                     Mettre en attente
                                                 </button>
                                             </>
                                         )}
                                         {application.applicationStatus === "En attente" && (
                                             <>
-                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>Accepter la demande</button>
-                                                <button type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
+                                                <button className="btn" type="button" onClick={() => handleSendToPatchApp(application._id, "Acceptée")}>Accepter la demande</button>
+                                                <button className="btn" type="button" onClick={() => handleSendToPatchApp(application._id, "Rejetée")}>
                                                     Rejeter la demande
                                                 </button>
                                             </>
                                         )}
-                                        <select
-                                            className="form-input"
-                                            id="status"
-                                            value={applicationStatus || application.applicationStatus}
-                                            onChange={(e) => setApplicationStatus(e.target.value)}
-                                        >
-                                            <option value="Acceptée">Acceptée</option>
-                                            <option value="En attente">En attente</option>
-                                            <option value="Rejetée">Rejetée</option>
-                                        </select>
                                     </div>
                                 ))}
                             </>
                         ) : (
                             <>
-                                {cat?.adoptionStatus}
+                                {catStatus(cat)}
                             </>
                         )}
                     </form>
+                    </div>
 
                 ) : (
                     <div className="cat-info">
