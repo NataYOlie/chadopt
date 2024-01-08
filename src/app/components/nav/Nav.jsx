@@ -1,6 +1,6 @@
 "use client";
 import "./nav.css";
-import {signIn, signOut, useSession, getProviders} from "next-auth/react";
+import {signOut, useSession} from "next-auth/react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faRightFromBracket, faUser} from "@fortawesome/free-solid-svg-icons";
 import LoginModal from "../modals/LoginModal";

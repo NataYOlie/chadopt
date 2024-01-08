@@ -79,7 +79,6 @@ export const DELETE = async (request, { params }) => {
 export const GET = async (request, { params }) => {
     try {
         await connectToDB();
-        console.log(params.id)
         //On récupère l'application
         const application = await Application.findById(params.id);
 

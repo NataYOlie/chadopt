@@ -57,16 +57,3 @@ export const DELETE = async (request, { params }) => {
         return new Response("Failed to delete the cat" + error, { status: 500 })
     }
 }
-
-//MEthode métier pour gérer le process d'adoption
-
-//changer le statut d'adoption d'un chat (user veut adopter > status vers demande en cours)
-/*
-1 - L'action "Adopter" aura pour but d'envoyer une demande d'adoption. Le client ne pourra plus refaire une demande
-pour le même chat mais pourra annuler sa demande en cours.
-Les statuts possibles pour un chat sont : Adoptable, Demande en cours, Adopté.
-Bien évidemment, on ne peut adopter un chat déjà adopté par quelqu'un d'autre.
-2 - Un chat peut faire l'objet de plusieurs adoptions en même temps (par différents clients).
-Cette info devra apparaitre côté admin
-
-*/

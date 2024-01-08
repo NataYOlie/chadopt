@@ -48,6 +48,18 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
     }
 
 
+    function handleAdoptUser(applicationId) {
+        getUserByApplicationId(applicationId)
+            .then((user) => {
+                console.log(user.username);
+                adoptUserList.push(user);
+            })
+            .catch((error) => {
+                console.error("Error fetching user:", error);
+            });
+    }
+
+///////////////////////METHODS ////////////////////////////////////////////////////////////////////////////////
     function getUpdatedCat (){
         const updatedCat = {
             name: editedName,
@@ -61,17 +73,9 @@ const CatModal = ({ user, cat, show, handleClose, handleSave, handleDelete, hand
         return updatedCat
     }
 
-    function handleAdoptUser(applicationId) {
-        getUserByApplicationId(applicationId)
-            .then((user) => {
-                console.log(user.username);
-                adoptUserList.push(user);
-            })
-            .catch((error) => {
-                console.error("Error fetching user:", error);
-            });
-    }
-/////////////RETURN //////////////////////////////////////////////////////////////////////
+
+
+/////////////RETURN ///////////////////////////////////////////////////////////////////////////////////////////////////
     return (
         <Modal show={show} onHide={handleClose} className="modal-container" >
             <Modal.Header>

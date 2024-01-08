@@ -355,15 +355,12 @@ const Feed = () => {
             });
     
             const data = await response.json();
-            console.log("PATCH APPLICATION data");
-            console.log(data);
     
             setErrorMessage(`Demande enregistrée comme ${status} !`);
             return data;
 
         } catch (error) {
             console.error("Error patching application:", error);
-            // Handle the error as needed
             setErrorMessage("Failed to patch application. Please try again.");
         }
     }
