@@ -75,4 +75,13 @@ bun dev
 ```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### credentials
+Admin : 
+username : admin
+password : 4dm1n
+
+User : Create your own account or use generic
+username : user
+password : us3r
+
 
