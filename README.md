@@ -4,6 +4,7 @@
 Chadopt' is the equivalent of the famous website [https://www.adopteunmec.com/](https://www.adopteunmec.com/) but for adopting a cat. 
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+A MongoDb database is used to store data.
 
 ### Installation
 You need to have [node.js](https://nodejs.org/en/download) installed (v18.17.0. or higher)
