@@ -9,9 +9,6 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 You need to have [node.js](https://nodejs.org/en/download) installed (v18.17.0. or higher)
 and [Next.js](https://nextjs.org/docs/getting-started/installation) (14.0.4 or higher)
 
-Database is on Mongo Db, env file is online (not for long !)
-
-
 ### Dependencies
 run
 ```bash
@@ -74,6 +71,7 @@ pnpm dev
 bun dev
 ```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
 
 ### credentials
 Admin : 
